@@ -1,6 +1,7 @@
 package cn.gsein.redisclient
 
-import io.lettuce.core.RedisClient
+import cn.gsein.redisclient.data.ConnectionData
+import cn.gsein.redisclient.service.RedisService
 
 /**
  * @author G. Seinfeld
@@ -9,11 +10,12 @@ import io.lettuce.core.RedisClient
 object Test {
     @JvmStatic
     fun main(args: Array<String>) {
-        val client = RedisClient.create("redis://:ccjh123456@123.57.73.15/0")
-        val connection = client.connect()
-        val redisCommands = connection.sync()
-        val keys = redisCommands.keys("*")
-        println("keys = $keys")
+        val redisService = RedisService(ConnectionData("123.57.73.15", 6379,"ccjh123456", 0))
+
+        val info = redisService.info()
+        for ((key, value) in info) {
+            println("$key = $value")
+        }
     }
 
 }
