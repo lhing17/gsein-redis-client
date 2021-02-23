@@ -1,6 +1,6 @@
 const path = require('path');
 
-function resolve (dir) {
+function resolve(dir) {
   return path.join(__dirname, dir);
 }
 
@@ -9,7 +9,10 @@ module.exports = {
   devServer: {
     // can be overwritten by process.env.HOST
     host: '0.0.0.0',
-    port: 8008
+    port: 8008,
+    proxy: {
+      '/api': 'http://localhost:8080'
+    }
   },
   chainWebpack: config => {
     config.resolve.alias

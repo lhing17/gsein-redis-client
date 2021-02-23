@@ -6,16 +6,13 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.desktop.Window
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.lightColors
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DesktopDialogProperties
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import cn.gsein.redisclient.ui.component.topBar
 import cn.gsein.redisclient.util.I18NUtil
 import cn.gsein.redisclient.util.Lang
@@ -27,6 +24,7 @@ fun main() = Window {
     val expandedSizeMin = 90.dp
     var expandedSize by remember { mutableStateOf(300.dp) }
     var isResizing by mutableStateOf(false)
+    var dialogValue by mutableStateOf("")
 
     println(expandedSize)
 
@@ -72,9 +70,14 @@ fun main() = Window {
     if (dialogState) {
         Dialog(
             onDismissRequest = { dialogState = false },
-            properties = DesktopDialogProperties(undecorated = true)
+            properties = DialogProperties(undecorated = true)
         ) {
-            I18NUtil.getMessage(lang, "newConnection")?.let { Text(it) }
+
+            Column {
+                I18NUtil.getMessage(lang, "newConnection")?.let { Text(it) }
+                TextField(dialogValue, onValueChange = { dialogValue = it })
+                Button(onClick = { dialogState = false }) { Text("取消") }
+            }
         }
     }
 }

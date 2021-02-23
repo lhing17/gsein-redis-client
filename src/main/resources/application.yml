@@ -6,3 +6,5 @@ spring:
     username: root
     password: ccjh123456
     database: 0
+server:
+  port: 8081
