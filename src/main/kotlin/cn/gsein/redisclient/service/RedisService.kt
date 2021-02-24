@@ -25,9 +25,9 @@ class RedisService(private val connectionData: ConnectionData) {
         val builder = RedisURI.builder()
         val uri = with(builder) {
             withHost(connectionData.host)
-            withPort(connectionData.port)
-            withPassword(connectionData.password.toCharArray())
-            withDatabase(connectionData.database)
+            connectionData.port?.let { withPort(it) }
+            withPassword(connectionData.password?.toCharArray())
+            connectionData.database?.let { withDatabase(it) }
             build()
         }
 

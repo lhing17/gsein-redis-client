@@ -1,16 +1,27 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, Menu, globalShortcut } from 'electron'
-import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
-import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import {app, protocol, BrowserWindow, Menu, globalShortcut} from 'electron'
+import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
+import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer'
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
-  { scheme: 'app', privileges: { secure: true, standard: true } }
+  {scheme: 'app', privileges: {secure: true, standard: true}}
 ])
 
-async function createWindow () {
+const platform = process.platform
+let serverProcess
+if (platform === 'win32') {
+  serverProcess = require('child_process').spawn('cmd.exe', ['/c', 'redis-client.bat'], {
+    cwd: app.getAppPath() + '/bin'
+  })
+} else {
+  serverProcess = require('child_process').spawn(app.getAppPath() + "/bin/redis-client")
+}
+
+async function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
     width: 800,
@@ -23,7 +34,7 @@ async function createWindow () {
     }
   })
 
-  globalShortcut.register('CommandOrControl+Shift+i', function (){
+  globalShortcut.register('CommandOrControl+Shift+i', function () {
     win.webContents.toggleDevTools()
   })
 
@@ -39,12 +50,23 @@ async function createWindow () {
 }
 
 // Quit when all windows are closed.
-app.on('window-all-closed', () => {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit()
+app.on('window-all-closed', (e) => {
+  if (serverProcess) {
+    e.preventDefault()
+    const kill = require('tree-kill')
+    kill(serverProcess.pid, 'SIGTERM', function (){
+      console.log('Server process killed')
+      serverProcess = null
+      app.quit()
+    })
+  } else {
+    // On macOS it is common for applications and their menu bar
+    // to stay active until the user quits explicitly with Cmd + Q
+    if (process.platform !== 'darwin') {
+      app.quit()
+    }
   }
+
 })
 
 app.on('activate', () => {
@@ -52,6 +74,21 @@ app.on('activate', () => {
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
+
+let appUrl = 'http://localhost:8081';
+
+const startUp = function () {
+  const requestPromise = require('minimal-request-promise')
+  requestPromise.get(appUrl).then(function (response) {
+    console.log('Server started!');
+    createWindow();
+  }, function (response) {
+    console.log('Waiting for the server start...');
+    setTimeout(function(){
+      startUp()
+    }, 500)
+  })
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -66,7 +103,7 @@ app.on('ready', async () => {
     }
   }
 
-  createWindow()
+  startUp()
 })
 
 // Exit cleanly on request from parent process in development mode.

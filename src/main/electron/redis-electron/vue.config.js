@@ -11,7 +11,13 @@ module.exports = {
     host: '0.0.0.0',
     port: 8008,
     proxy: {
-      '/api': 'http://localhost:8080'
+      '/api': {
+        target: 'http://localhost:8081',
+        changeOrigin: true,
+        pathRewrite: {
+          ['^/api']: ''
+        }
+      }
     }
   },
   chainWebpack: config => {
