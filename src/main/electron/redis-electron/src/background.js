@@ -14,17 +14,22 @@ protocol.registerSchemesAsPrivileged([
 const platform = process.platform
 let appStarted = false
 let serverProcess
-if (platform === 'win32') {
-  serverProcess = require('child_process').spawn('cmd.exe', ['/c', 'redis-client.bat'], {
-    cwd: app.getAppPath() + '/bin'
-  })
+if (isDevelopment) {
+  serverProcess = true
 } else {
-  const chmod = require('child_process').spawn('chmod', ['+x', app.getAppPath() + "/bin/redis-client"]);
-  chmod.on('close', (code => {
-    serverProcess = require('child_process').spawn(app.getAppPath() + "/bin/redis-client")
-  }))
+  if (platform === 'win32') {
+    serverProcess = require('child_process').spawn('cmd.exe', ['/c', 'redis-client.bat'], {
+      cwd: app.getAppPath() + '/bin'
+    })
+  } else {
+    const chmod = require('child_process').spawn('chmod', ['+x', app.getAppPath() + "/bin/redis-client"]);
+    chmod.on('close', (code => {
+      serverProcess = require('child_process').spawn(app.getAppPath() + "/bin/redis-client")
+    }))
 
+  }
 }
+
 
 async function createWindow() {
   // Create the browser window.
