@@ -12,13 +12,18 @@ protocol.registerSchemesAsPrivileged([
 ])
 
 const platform = process.platform
+let appStarted = false
 let serverProcess
 if (platform === 'win32') {
   serverProcess = require('child_process').spawn('cmd.exe', ['/c', 'redis-client.bat'], {
     cwd: app.getAppPath() + '/bin'
   })
 } else {
-  serverProcess = require('child_process').spawn(app.getAppPath() + "/bin/redis-client")
+  const chmod = require('child_process').spawn('chmod', ['+x', app.getAppPath() + "/bin/redis-client"]);
+  chmod.on('close', (code => {
+    serverProcess = require('child_process').spawn(app.getAppPath() + "/bin/redis-client")
+  }))
+
 }
 
 async function createWindow() {
@@ -51,10 +56,10 @@ async function createWindow() {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', (e) => {
-  if (serverProcess) {
+  if (serverProcess && process.platform !== 'darwin') {
     e.preventDefault()
     const kill = require('tree-kill')
-    kill(serverProcess.pid, 'SIGTERM', function (){
+    kill(serverProcess.pid, 'SIGTERM', function () {
       console.log('Server process killed')
       serverProcess = null
       app.quit()
@@ -72,19 +77,22 @@ app.on('window-all-closed', (e) => {
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  if (BrowserWindow.getAllWindows().length === 0 && appStarted) createWindow()
 })
 
-let appUrl = 'http://localhost:8081';
+let appUrl = 'http://localhost:8081/redis';
 
 const startUp = function () {
   const requestPromise = require('minimal-request-promise')
   requestPromise.get(appUrl).then(function (response) {
+    console.log(response);
     console.log('Server started!');
     createWindow();
+    appStarted = true
   }, function (response) {
+    console.log(response)
     console.log('Waiting for the server start...');
-    setTimeout(function(){
+    setTimeout(function () {
       startUp()
     }, 500)
   })
