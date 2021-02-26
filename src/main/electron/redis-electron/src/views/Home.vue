@@ -4,12 +4,18 @@
       <el-button icon="el-icon-plus" @click="openConnectionDialog" circle></el-button>
     </el-header>
     <el-container>
-      <el-aside width="200px">
+      <el-aside width="300px">
         <el-row v-for="address in addresses" :key="address.key">
-          <span>{{ address.host }}@{{ address.port }}</span>
-          <div>
-            <el-button icon="el-icon-home"></el-button>
-          </div>
+          <el-col :span="15">
+            <span>{{ address.host }}@{{ address.port }}</span>
+          </el-col>
+          <el-col :span="9">
+            <el-button icon="el-icon-s-home" type="text" size="mini" plain></el-button>
+            <el-button icon="el-icon-s-home" type="text" size="mini" plain></el-button>
+            <el-button icon="el-icon-refresh" type="text" size="mini" plain></el-button>
+            <el-button icon="el-icon-menu" type="text" size="mini" plain></el-button>
+            <el-button icon="el-icon-arrow-down" type="text" size="mini" plain></el-button>
+          </el-col>
         </el-row>
       </el-aside>
       <el-main>Main</el-main>
