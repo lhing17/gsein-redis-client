@@ -18,6 +18,7 @@
           </el-col>
         </el-row>
       </el-aside>
+      <div class="resize"> ⋮</div>
       <el-main>Main</el-main>
     </el-container>
     <el-dialog title="新建连接" :visible.sync="dialogVisible" :before-close="handleClose">
@@ -85,3 +86,21 @@ export default {
   }
 }
 </script>
+<style>
+.resize {
+  cursor: col-resize;
+  float: left;
+  position: relative;
+  top: 45%;
+  background-color: #d6d6d6;
+  border-radius: 5px;
+  margin-top: -10px;
+  width: 10px;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  /*z-index: 99999;*/
+  font-size: 32px;
+  color: white;
+}
+</style>
