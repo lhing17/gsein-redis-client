@@ -58,4 +58,15 @@ class RedisController {
         return AjaxResult.ok(info)
     }
 
+    @GetMapping("/get-keys")
+    fun getKeys(key: String, database: Int): AjaxResult<List<String>> {
+        val keys = redisService.getKeys(key, database)
+        return AjaxResult.ok(keys)
+    }
+
+    @GetMapping("/get-value")
+    fun getValue(key: String, database: Int, redisKey: String): AjaxResult<Any> {
+        return AjaxResult.ok(redisService.getValue(key, database, redisKey))
+    }
+
 }

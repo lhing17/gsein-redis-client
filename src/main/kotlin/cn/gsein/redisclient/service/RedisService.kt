@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.Resource
-import kotlin.collections.HashMap
 
 /**
  * @author G. Seinfeld
@@ -49,6 +48,37 @@ class RedisService {
             }
         }
         return map
+    }
+
+    fun getValue(key: String, database: Int, redisKey: String): Any {
+        val connection = getConnection(key, database)
+        val redisCommands = connection.sync()
+
+        return when (redisCommands.type(redisKey)) {
+            "string" -> {
+                redisCommands.get(redisKey)
+            }
+            "hash" -> {
+                redisCommands.hgetall(redisKey)
+            }
+            "list" -> {
+                redisCommands.lrange(redisKey, 0, -1)
+            }
+            "set" -> {
+                redisCommands.smembers(redisKey)
+            }
+            "zset" -> {
+                redisCommands.zrangeWithScores(redisKey, 0, -1)
+            }
+            else -> {
+                ""
+            }
+        }
+    }
+
+    fun getKeys(key: String, database: Int): List<String> {
+        val connection = getConnection(key, database)
+        return connection.sync().keys("*")
     }
 
     fun initAddressMap() {
@@ -117,13 +147,4 @@ class RedisService {
         return uuid
     }
 
-    fun info(): Map<String, String> {
-//        val info = connection.sync().info()
-//        return info.split("\n").filter {
-//            it.contains(":")
-//        }.map {
-//            it.split(":")
-//        }.associateBy({ it[0] }, { it[1].trim() })
-        return HashMap()
-    }
 }

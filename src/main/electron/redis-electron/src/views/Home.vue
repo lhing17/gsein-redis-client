@@ -6,7 +6,7 @@
     <el-container>
       <el-aside width="300px">
 
-        <el-menu @select="showInfo" @open="refreshKeys">
+        <el-menu @select="handleMenuItemSelected" @open="handleOpenSubMenu" :unique-opened="true">
           <el-submenu v-for="(address, i) in addresses" :key="address.key" :index="i+''">
             <template slot="title">
               <span>{{ address.host }}@{{ address.port }}</span>
@@ -18,8 +18,20 @@
               </el-button-group>
             </template>
             <el-menu-item-group>
-              <el-menu-item index="1-1">选项1</el-menu-item>
-              <el-menu-item index="1-2">选项2</el-menu-item>
+              <template slot="title">
+                <el-select v-model="address.database" placeholder="请选择" @change="handleDatabaseChange">
+                  <el-option
+                    v-for="item in address.databaseOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+              </template>
+              <el-menu-item :index="i + '-'+index" v-for="(key, index) in address.keys" :key="index">{{
+                  key
+                }}
+              </el-menu-item>
             </el-menu-item-group>
           </el-submenu>
         </el-menu>
@@ -60,7 +72,7 @@
 <script>
 // @ is an alias to /src
 
-import {getInfo, listAddresses, newConnection} from '@/api/redis';
+import {getInfo, getKeys, getValueByKey, listAddresses, newConnection} from '@/api/redis';
 import RedisInfo from '@/components/RedisInfo';
 
 export default {
@@ -75,7 +87,9 @@ export default {
       addresses: [],
       activeName: '',
       editableTabs: [],
-      tabIndex: 0
+      tabIndex: 0,
+      activeKey: '',
+      activeIndex: -1
     }
   },
   methods: {
@@ -91,23 +105,74 @@ export default {
     addConnection() {
       newConnection(this.form).then(res => console.log(res))
     },
-    showInfo(index, indexPath) {
-      console.log('selected', index, indexPath)
-    },
-    refreshKeys(index, indexPath) {
-      getInfo(this.addresses[index].key).then(res => {
+    handleMenuItemSelected(index) {
+      const indexPath = index.split('-')
+      const addressIndex = parseInt(indexPath[0])
+      const keyIndex = parseInt(indexPath[1])
+      console.log(index, indexPath, addressIndex, keyIndex)
+      const address = this.addresses[addressIndex]
+      const redisKey = address.keys[keyIndex]
+
+      const title = redisKey + ' | ' + address.host + '@' + address.port + ' | db' + address.database
+
+      getValueByKey(address.key, address.database, redisKey).then(res => {
         if (res.data.code === 200) {
           console.log(res.data.data)
-          const newTabName = this.addresses[index].key
           this.editableTabs.push({
-            title: 'New Tab',
-            name: newTabName,
-            content: res.data.data
+            title: title,
+            name: title,
+            type: 1,
+            content: {}
           })
-          this.activeName = newTabName
+          this.activeName = title
         }
       })
-      console.log('open', index, indexPath)
+    },
+    handleOpenSubMenu(index) {
+      this.activeKey = this.addresses[index].key
+      this.activeIndex = index
+      // 判断是否已经存在该redis信息的选项卡
+      let existsFlag = false
+      for (const tab of this.editableTabs) {
+        if (tab.name === this.addresses[index].key) {
+          existsFlag = true
+          console.log('exists')
+          break
+        }
+      }
+      if (!existsFlag) {
+        getInfo(this.addresses[index].key).then(res => {
+          if (res.data.code === 200) {
+            const info = res.data.data
+            console.log(info)
+            const newTabName = this.addresses[index].key
+            this.editableTabs.push({
+              title: this.addresses[index].host + '@' + this.addresses[index].port,
+              name: newTabName,
+              type: 0,
+              content: info
+            })
+            this.$set(this.addresses[index], 'databaseOptions', [])
+            // 获取所有有数据的database
+            Object.keys(info.Keyspace).forEach((key) => {
+              this.addresses[index].databaseOptions.push({
+                label: key,
+                value: parseInt(key.substring(2))
+              })
+            })
+            // 获取db0的所有keys
+            getKeys(this.addresses[index].key, 0).then(
+              response => {
+                if (response.data.code === 200) {
+                  this.$set(this.addresses[index], 'keys', response.data.data)
+                }
+              }
+            )
+            console.log(this.addresses)
+            this.activeName = newTabName
+          }
+        });
+      }
     },
     handleTabClick(tab, event) {
       console.log(tab, event)
@@ -128,6 +193,19 @@ export default {
 
       this.activeName = activeName;
       this.editableTabs = tabs.filter(tab => tab.name !== targetName);
+    },
+    handleDatabaseChange(val) {
+      if (this.activeKey) {
+        const index = this.activeIndex
+        // 获取db0的所有keys
+        getKeys(this.addresses[index].key, val).then(
+          response => {
+            if (response.data.code === 200) {
+              this.$set(this.addresses[index], 'keys', response.data.data)
+            }
+          }
+        )
+      }
     }
   },
   mounted() {
@@ -135,6 +213,9 @@ export default {
       console.log(res)
       if (res.data.code === 200) {
         this.addresses = res.data.data
+        this.addresses.forEach(address => {
+          this.$set(address, 'database', 0)
+        })
         console.log(this.addresses)
       }
     })

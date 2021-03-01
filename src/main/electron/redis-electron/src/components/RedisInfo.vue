@@ -97,7 +97,7 @@
         <el-table
           :data="allInfo"
           style="width: 100%"
-          stripe="true">
+          :stripe="true">
           <el-table-column
             prop="type"
             label="Type"
