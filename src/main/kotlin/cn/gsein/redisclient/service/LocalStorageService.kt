@@ -28,4 +28,15 @@ class LocalStorageService {
         Files.writeString(connectionInfoFile, JSON.toJSONString(redisAddressMap))
     }
 
+    fun init(): Map<String, ConnectionData> {
+        val userHome = System.getProperty("user.home")
+        val connectionInfoFile = Paths.get(userHome, USER_HOME_KEY, CONNECTION_INFO_FILE_NAME)
+        return if (Files.exists(connectionInfoFile)) {
+            val bytes = Files.readAllBytes(connectionInfoFile)
+            val content = String(bytes)
+            val parsed = JSON.parseObject(content)
+            parsed.entries.associateBy({ it.key }, { JSON.toJavaObject(it.value as JSON?, ConnectionData::class.java) })
+        } else HashMap()
+    }
+
 }

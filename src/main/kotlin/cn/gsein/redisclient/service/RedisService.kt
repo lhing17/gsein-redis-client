@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.Resource
+import kotlin.collections.HashMap
 
 /**
  * @author G. Seinfeld
@@ -24,6 +25,35 @@ class RedisService {
 
     @Resource
     lateinit var localStorageService: LocalStorageService
+
+    /**
+     * 获取redis连接信息
+     */
+    fun getInfo(key: String): Map<String, Map<String, String>> {
+        val map = LinkedHashMap<String, MutableMap<String, String>>()
+        val connection = getConnection(key, 0)
+        val info = connection.sync().info()
+        val lines = info.lines()
+        var currentKey = ""
+        for (line in lines) {
+            if (line.startsWith("#")) {
+                currentKey = line.trim('#', ' ')
+            } else if (line.contains(':')) {
+                val split = line.split(":")
+                if (!map.containsKey(currentKey)) {
+                    map[currentKey] = LinkedHashMap()
+                }
+                val k = split[0]
+                val v = split[1]
+                map[currentKey]?.set(k, v)
+            }
+        }
+        return map
+    }
+
+    fun initAddressMap() {
+        redisAddressMap = ConcurrentHashMap(localStorageService.init())
+    }
 
     fun listAddresses(): MutableMap<String, ConnectionData> {
         return redisAddressMap
@@ -59,9 +89,9 @@ class RedisService {
         localStorageService.synchronize(redisAddressMap)
     }
 
-    fun getConnection(uuid: String, database: Int): StatefulRedisConnection<String, String> {
+    private fun getConnection(uuid: String, database: Int): StatefulRedisConnection<String, String> {
         val connection = connectionMap[uuid]?.get(database)
-        return if (connection != null) {
+        return if (connection != null && connection.isOpen) {
             connection
         } else {
             val connectionData = redisAddressMap[uuid]

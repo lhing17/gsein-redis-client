@@ -5,12 +5,12 @@ package cn.gsein.redisclient.data
  * @since 2021/02/19
  */
 data class ConnectionData(
-    val host: String?,
-    val port: Int?,
+    var host: String?,
+    var port: Int?,
     val password: String?,
     val username: String?,
     val separator: String?
-){
+) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

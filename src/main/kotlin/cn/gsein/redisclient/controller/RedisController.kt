@@ -27,6 +27,12 @@ class RedisController {
 
     @PostMapping("/new-connection")
     fun newConnection(connectionData: ConnectionData): String {
+        if (connectionData.host == null) {
+            connectionData.host = "127.0.0.1"
+        }
+        if (connectionData.port == null) {
+            connectionData.port = 6379
+        }
         redisService.registerNewRedisAddress(connectionData)
         return "abcd"
     }
@@ -44,6 +50,12 @@ class RedisController {
             map
         }
         return AjaxResult.ok(list)
+    }
+
+    @GetMapping("/get-info")
+    fun getInfo(key: String): AjaxResult<Map<String, Map<String, String>>> {
+        val info = redisService.getInfo(key)
+        return AjaxResult.ok(info)
     }
 
 }

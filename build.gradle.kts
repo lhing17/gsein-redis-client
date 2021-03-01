@@ -1,5 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+
+
+
+
 plugins {
     kotlin("jvm") version "1.4.30"
 //    id("org.jetbrains.compose") version "0.3.0"
@@ -8,6 +12,7 @@ plugins {
     id("application")
 }
 
+val kotlinVersion: String = "1.4.30"
 group = "cn.gsein"
 version = "1.0.0"
 
@@ -131,6 +136,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:2.4.2")
     implementation("org.apache.commons:commons-pool2:2.6.0")
     implementation("com.alibaba:fastjson:1.2.73")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
 }
 

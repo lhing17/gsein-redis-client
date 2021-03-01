@@ -5,21 +5,33 @@
     </el-header>
     <el-container>
       <el-aside width="300px">
-        <el-row v-for="address in addresses" :key="address.key">
-          <el-col :span="15">
-            <span>{{ address.host }}@{{ address.port }}</span>
-          </el-col>
-          <el-col :span="9">
-            <el-button icon="el-icon-s-home" type="text" size="mini" plain></el-button>
-            <el-button icon="el-icon-s-home" type="text" size="mini" plain></el-button>
-            <el-button icon="el-icon-refresh" type="text" size="mini" plain></el-button>
-            <el-button icon="el-icon-menu" type="text" size="mini" plain></el-button>
-            <el-button icon="el-icon-arrow-down" type="text" size="mini" plain></el-button>
-          </el-col>
-        </el-row>
+
+        <el-menu @select="showInfo" @open="refreshKeys">
+          <el-submenu v-for="(address, i) in addresses" :key="address.key" :index="i+''">
+            <template slot="title">
+              <span>{{ address.host }}@{{ address.port }}</span>
+              <el-button-group>
+                <el-button icon="el-icon-s-home" type="text" size="mini" plain></el-button>
+                <el-button icon="el-icon-s-home" type="text" size="mini" plain></el-button>
+                <el-button icon="el-icon-refresh" type="text" size="mini" plain></el-button>
+                <el-button icon="el-icon-menu" type="text" size="mini" plain></el-button>
+              </el-button-group>
+            </template>
+            <el-menu-item-group>
+              <el-menu-item index="1-1">选项1</el-menu-item>
+              <el-menu-item index="1-2">选项2</el-menu-item>
+            </el-menu-item-group>
+          </el-submenu>
+        </el-menu>
       </el-aside>
       <div class="resize"> ⋮</div>
-      <el-main>Main</el-main>
+      <el-main>
+        <el-tabs v-model="activeName" type="card" @tab-click="handleTabClick" closable @tab-remove="handleTabRemove">
+          <el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name">
+            <redis-info :info="item.content"></redis-info>
+          </el-tab-pane>
+        </el-tabs>
+      </el-main>
     </el-container>
     <el-dialog title="新建连接" :visible.sync="dialogVisible" :before-close="handleClose">
       <el-form ref="form" :model="form" label-width="80px">
@@ -48,17 +60,22 @@
 <script>
 // @ is an alias to /src
 
-import {listAddresses, newConnection} from '@/api/redis';
+import {getInfo, listAddresses, newConnection} from '@/api/redis';
+import RedisInfo from '@/components/RedisInfo';
 
 export default {
   name: 'Home',
+  components: {RedisInfo},
   data() {
     return {
       form: {
         separator: ':'
       },
       dialogVisible: false,
-      addresses: []
+      addresses: [],
+      activeName: '',
+      editableTabs: [],
+      tabIndex: 0
     }
   },
   methods: {
@@ -73,6 +90,44 @@ export default {
     },
     addConnection() {
       newConnection(this.form).then(res => console.log(res))
+    },
+    showInfo(index, indexPath) {
+      console.log('selected', index, indexPath)
+    },
+    refreshKeys(index, indexPath) {
+      getInfo(this.addresses[index].key).then(res => {
+        if (res.data.code === 200) {
+          console.log(res.data.data)
+          const newTabName = this.addresses[index].key
+          this.editableTabs.push({
+            title: 'New Tab',
+            name: newTabName,
+            content: res.data.data
+          })
+          this.activeName = newTabName
+        }
+      })
+      console.log('open', index, indexPath)
+    },
+    handleTabClick(tab, event) {
+      console.log(tab, event)
+    },
+    handleTabRemove(targetName) {
+      const tabs = this.editableTabs;
+      let activeName = this.activeName;
+      if (activeName === targetName) {
+        tabs.forEach((tab, index) => {
+          if (tab.name === targetName) {
+            const nextTab = tabs[index + 1] || tabs[index - 1];
+            if (nextTab) {
+              activeName = nextTab.name;
+            }
+          }
+        });
+      }
+
+      this.activeName = activeName;
+      this.editableTabs = tabs.filter(tab => tab.name !== targetName);
     }
   },
   mounted() {
@@ -86,7 +141,7 @@ export default {
   }
 }
 </script>
-<style>
+<style scoped>
 .resize {
   cursor: col-resize;
   float: left;
@@ -103,4 +158,5 @@ export default {
   font-size: 32px;
   color: white;
 }
+
 </style>
