@@ -40,7 +40,8 @@
       <el-main>
         <el-tabs v-model="activeName" type="card" @tab-click="handleTabClick" closable @tab-remove="handleTabRemove">
           <el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name">
-            <redis-info :info="item.content"></redis-info>
+            <redis-info :info="item.content" v-if="item.type === 0"></redis-info>
+            <redis-value-info v-if="item.type === 1"/>
           </el-tab-pane>
         </el-tabs>
       </el-main>
@@ -74,10 +75,11 @@
 
 import {getInfo, getKeys, getValueByKey, listAddresses, newConnection} from '@/api/redis';
 import RedisInfo from '@/components/RedisInfo';
+import RedisValueInfo from '@/components/RedisValueInfo';
 
 export default {
   name: 'Home',
-  components: {RedisInfo},
+  components: {RedisValueInfo, RedisInfo},
   data() {
     return {
       form: {
