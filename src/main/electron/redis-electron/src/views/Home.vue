@@ -41,7 +41,7 @@
         <el-tabs v-model="activeName" type="card" @tab-click="handleTabClick" closable @tab-remove="handleTabRemove">
           <el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name">
             <redis-info :info="item.content" v-if="item.type === 0"></redis-info>
-            <redis-value-info v-if="item.type === 1"/>
+            <redis-value-info :info="item.content" v-if="item.type === 1"/>
           </el-tab-pane>
         </el-tabs>
       </el-main>
@@ -116,19 +116,30 @@ export default {
       const redisKey = address.keys[keyIndex]
 
       const title = redisKey + ' | ' + address.host + '@' + address.port + ' | db' + address.database
-
-      getValueByKey(address.key, address.database, redisKey).then(res => {
-        if (res.data.code === 200) {
-          console.log(res.data.data)
-          this.editableTabs.push({
-            title: title,
-            name: title,
-            type: 1,
-            content: {}
-          })
-          this.activeName = title
+      let existsFlag = false
+      for (const tab of this.editableTabs) {
+        if (tab.name === title) {
+          existsFlag = true
+          console.log('exists')
+          break
         }
-      })
+      }
+      if (!existsFlag) {
+        getValueByKey(address.key, address.database, redisKey).then(res => {
+          if (res.data.code === 200) {
+            const info = res.data.data
+            info.connectionKey = address.key
+            info.database = address.database
+            this.editableTabs.push({
+              title: title,
+              name: title,
+              type: 1,
+              content: info
+            })
+            this.activeName = title
+          }
+        })
+      }
     },
     handleOpenSubMenu(index) {
       this.activeKey = this.addresses[index].key
@@ -146,7 +157,6 @@ export default {
         getInfo(this.addresses[index].key).then(res => {
           if (res.data.code === 200) {
             const info = res.data.data
-            console.log(info)
             const newTabName = this.addresses[index].key
             this.editableTabs.push({
               title: this.addresses[index].host + '@' + this.addresses[index].port,

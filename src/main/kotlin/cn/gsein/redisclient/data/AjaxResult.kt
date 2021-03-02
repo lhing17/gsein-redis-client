@@ -6,7 +6,7 @@ package cn.gsein.redisclient.data
  */
 class AjaxResult<T>(val code: Int?, val message: String?, val data: T? = null) {
     companion object {
-        fun <T> ok(data: T): AjaxResult<T> {
+        fun <T> ok(data: T? = null): AjaxResult<T> {
             return AjaxResult(200, "操作成功", data)
         }
 

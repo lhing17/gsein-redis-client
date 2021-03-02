@@ -4,6 +4,7 @@ import cn.gsein.redisclient.data.ConnectionData
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import io.lettuce.core.api.StatefulRedisConnection
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -15,6 +16,8 @@ import javax.annotation.Resource
  */
 @Service
 class RedisService {
+    private val log = LoggerFactory.getLogger(this.javaClass)
+
     companion object {
         var connectionMap: MutableMap<String, MutableMap<Int, StatefulRedisConnection<String, String>>> =
             ConcurrentHashMap()
@@ -50,6 +53,18 @@ class RedisService {
         return map
     }
 
+    fun getTtl(key: String, database: Int, redisKey: String): Long {
+        val connection = getConnection(key, database)
+        val redisCommands = connection.sync()
+        return redisCommands.ttl(redisKey)
+    }
+
+    fun getType(key: String, database: Int, redisKey: String): String {
+        val connection = getConnection(key, database)
+        val redisCommands = connection.sync()
+        return redisCommands.type(redisKey)
+    }
+
     fun getValue(key: String, database: Int, redisKey: String): Any {
         val connection = getConnection(key, database)
         val redisCommands = connection.sync()
@@ -80,6 +95,34 @@ class RedisService {
         val connection = getConnection(key, database)
         return connection.sync().keys("*")
     }
+
+    /**
+     * 修改String类型数据的值
+     */
+    fun updateStringValue(key: String, database: Int, redisKey: String, redisValue: String): String {
+        log.info("更新String类型数据，key: $key, database: $database, redisKey: $redisKey, redisValue: $redisValue")
+        val connection = getConnection(key, database)
+        return connection.sync().set(redisKey, redisValue)
+    }
+
+    /**
+     * 修改key的过期时间
+     */
+    fun updateTtl(key: String, database: Int, redisKey: String, ttl: Long): Boolean {
+        log.info("设定key的过期时间: $key, database: $database, redisKey: $redisKey, ttl: $ttl")
+        val connection = getConnection(key, database)
+        return connection.sync().expire(redisKey, ttl)
+    }
+
+    /**
+     * 修改key的名称
+     */
+    fun updateKey(key: String, database: Int, redisKey: String, newRedisKey: String): Boolean {
+        log.info("对redis数据进行重命名，key: $key, database: $database, redisKey: $redisKey, newRedisKey: $newRedisKey")
+        val connection = getConnection(key, database)
+        return connection.sync().renamenx(redisKey, newRedisKey)
+    }
+
 
     fun initAddressMap() {
         redisAddressMap = ConcurrentHashMap(localStorageService.init())

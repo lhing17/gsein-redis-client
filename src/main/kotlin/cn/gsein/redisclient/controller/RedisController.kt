@@ -66,7 +66,36 @@ class RedisController {
 
     @GetMapping("/get-value")
     fun getValue(key: String, database: Int, redisKey: String): AjaxResult<Any> {
-        return AjaxResult.ok(redisService.getValue(key, database, redisKey))
+        val info = HashMap<String, Any>()
+        info["type"] = redisService.getType(key, database, redisKey)
+        info["value"] = redisService.getValue(key, database, redisKey)
+        info["key"] = redisKey
+        info["ttl"] = redisService.getTtl(key, database, redisKey)
+
+        return AjaxResult.ok(info)
     }
+
+    @PostMapping("/update-string-value")
+    fun updateStringValue(key: String, database: Int, redisKey: String, redisValue: String): AjaxResult<Any?> {
+        val result = redisService.updateStringValue(key, database, redisKey, redisValue)
+        return if ("OK" == result) {
+            AjaxResult.ok()
+        } else {
+            AjaxResult.error("操作异常")
+        }
+    }
+
+    @PostMapping("/update-key")
+    fun updateKey(key: String, database: Int, redisKey: String, newRedisKey: String): AjaxResult<Any?> {
+        val result = redisService.updateKey(key, database, redisKey, newRedisKey)
+        return if (result) AjaxResult.ok() else AjaxResult.error("操作异常")
+    }
+
+    @PostMapping("/update-ttl")
+    fun updateTtl(key: String, database: Int, redisKey: String, ttl: Long): AjaxResult<Any?> {
+        val result = redisService.updateTtl(key, database, redisKey, ttl)
+        return if (result) AjaxResult.ok() else AjaxResult.error("操作异常")
+    }
+
 
 }

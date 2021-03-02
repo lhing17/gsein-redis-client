@@ -131,6 +131,7 @@ repositories {
 
 
 dependencies {
+    implementation("org.projectlombok:lombok:1.18.16")
     compileOnly("org.gradle:gradle-tooling-api:2.13")
     implementation("org.springframework.boot:spring-boot-starter-data-redis:2.4.2")
     implementation("org.springframework.boot:spring-boot-starter-web:2.4.2")
