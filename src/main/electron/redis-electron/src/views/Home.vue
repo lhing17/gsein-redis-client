@@ -41,7 +41,7 @@
         <el-tabs v-model="activeName" type="card" @tab-click="handleTabClick" closable @tab-remove="handleTabRemove">
           <el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name">
             <redis-info :info="item.content" v-if="item.type === 0"></redis-info>
-            <redis-value-info :info="item.content" v-if="item.type === 1"/>
+            <redis-value-info :info="item.content" v-if="item.type === 1" @refresh-data="refreshRedisValue"/>
           </el-tab-pane>
         </el-tabs>
       </el-main>
@@ -142,6 +142,37 @@ export default {
           }
         })
       }
+    },
+    getAddressByKey(key) {
+      for (const address of this.addresses) {
+        if (address.key === key) {
+          return address
+        }
+      }
+    },
+    refreshRedisValue(info) {
+      console.log(`刷新key为${info.key}的数据`)
+      const redisKey = info.key
+      const key = info.connectionKey
+      const database = info.database
+      const address = this.getAddressByKey(key)
+
+      const title = redisKey + ' | ' + address.host + '@' + address.port + ' | db' + database
+      getValueByKey(key, database, redisKey).then(res => {
+        if (res.data.code === 200) {
+          const info = res.data.data
+          info.connectionKey = address.key
+          info.database = address.database
+          console.log('info: ', info)
+          for (const tab of this.editableTabs) {
+            if (tab.name === title) {
+              this.activeName = title
+              tab.content = info
+              break
+            }
+          }
+        }
+      })
     },
     handleOpenSubMenu(index) {
       this.activeKey = this.addresses[index].key

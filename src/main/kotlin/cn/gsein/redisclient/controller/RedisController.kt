@@ -78,17 +78,13 @@ class RedisController {
     @PostMapping("/update-string-value")
     fun updateStringValue(key: String, database: Int, redisKey: String, redisValue: String): AjaxResult<Any?> {
         val result = redisService.updateStringValue(key, database, redisKey, redisValue)
-        return if ("OK" == result) {
-            AjaxResult.ok()
-        } else {
-            AjaxResult.error("操作异常")
-        }
+        return buildAjaxResult(result)
     }
 
     @PostMapping("/update-key")
     fun updateKey(key: String, database: Int, redisKey: String, newRedisKey: String): AjaxResult<Any?> {
         val result = redisService.updateKey(key, database, redisKey, newRedisKey)
-        return if (result) AjaxResult.ok() else AjaxResult.error("操作异常")
+        return buildAjaxResult(result)
     }
 
     @PostMapping("/update-ttl")
@@ -100,8 +96,36 @@ class RedisController {
     @PostMapping("/delete-key")
     fun deleteKey(key: String, database: Int, redisKey: String): AjaxResult<Any?> {
         val result = redisService.deleteKey(key, database, redisKey)
-        return if (result) AjaxResult.ok() else AjaxResult.error("操作异常")
+        return buildAjaxResult(result)
     }
+
+    @PostMapping("/add-list-value")
+    fun addListValue(key: String, database: Int, redisKey: String, redisValue: String): AjaxResult<Any?> {
+        val result = redisService.addListValue(key, database, redisKey, redisValue)
+        return buildAjaxResult(result)
+    }
+
+    @PostMapping("/update-list-value")
+    fun updateListValue(
+        key: String,
+        database: Int,
+        redisKey: String,
+        redisIndex: Long,
+        redisValue: String
+    ): AjaxResult<Any?> {
+        val result = redisService.updateListValue(key, database, redisKey, redisIndex, redisValue)
+        return buildAjaxResult(result)
+    }
+
+    @PostMapping("/delete-list-value")
+    fun deleteListValue(key: String, database: Int, redisKey: String, redisValue: String): AjaxResult<Any?> {
+        val result = redisService.deleteListValue(key, database, redisKey, redisValue)
+        return buildAjaxResult(result)
+    }
+
+
+    private fun buildAjaxResult(result: Boolean): AjaxResult<Any?> =
+        if (result) AjaxResult.ok() else AjaxResult.error("操作异常")
 
 
 }

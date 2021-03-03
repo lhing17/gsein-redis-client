@@ -101,12 +101,39 @@ class RedisService {
     }
 
     /**
+     * 向List中添加一条数据
+     */
+    fun addListValue(key: String, database: Int, redisKey: String, redisValue: String): Boolean {
+        log.info("向list中添加一条数据，key: $key, database: $database, redisKey: $redisKey, redisValue: $redisValue")
+        val connection = getConnection(key, database)
+        return connection.sync().rpush(redisKey, redisValue) > 0
+    }
+
+    /**
      * 修改String类型数据的值
      */
-    fun updateStringValue(key: String, database: Int, redisKey: String, redisValue: String): String {
+    fun updateStringValue(key: String, database: Int, redisKey: String, redisValue: String): Boolean {
         log.info("更新String类型数据，key: $key, database: $database, redisKey: $redisKey, redisValue: $redisValue")
         val connection = getConnection(key, database)
-        return connection.sync().set(redisKey, redisValue)
+        return "OK" == connection.sync().set(redisKey, redisValue)
+    }
+
+    /**
+     * 修改List类型数据某下标的值
+     */
+    fun updateListValue(key: String, database: Int, redisKey: String, redisIndex: Long, redisValue: String): Boolean {
+        log.info("更新List类型数据，key: $key, database: $database, redisKey: $redisKey, redisIndex: $redisIndex, redisValue: $redisValue")
+        val connection = getConnection(key, database)
+        return "OK" == connection.sync().lset(redisKey, redisIndex, redisValue)
+    }
+
+    /**
+     * 删除List类型指定值的一条数据
+     */
+    fun deleteListValue(key: String, database: Int, redisKey: String, redisValue: String): Boolean {
+        log.info("删除List类型其中一条数据, key: $key, database: $database, redisKey: $redisKey, redisValue: $redisValue")
+        val connection = getConnection(key, database)
+        return connection.sync().lrem(redisKey, 1, redisValue) == 1L
     }
 
     /**

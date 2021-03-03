@@ -23,6 +23,9 @@
         <el-button type="primary" @click="updateStringValue">保存</el-button>
       </div>
       <div v-if="info.type==='list'">
+        <div class="table-title">
+          <el-button icon="el-icon-plus" circle @click="showAddDialog"></el-button>
+        </div>
         <el-table border style="width: 100%" :data="info.value">
           <el-table-column
             prop="id"
@@ -38,7 +41,7 @@
             label="操作"
             width="200">
             <template slot-scope="scope">
-              <el-button @click="updateListValue(scope.row)" type="text" size="small">编辑</el-button>
+              <el-button @click="showEditDialog(scope.row, scope.$index)" type="text" size="small">编辑</el-button>
               <el-button @click="deleteListValue(scope.row)" type="text" size="small">删除</el-button>
             </template>
           </el-table-column>
@@ -119,11 +122,30 @@
         </el-table>
       </div>
     </div>
+    <el-dialog :title="dialogType==='add' ? '添加新行': '修改行'" :visible.sync="dialogVisible">
+      <el-form ref="form" :model="form" label-width="80px" v-if="info.type==='list'">
+        <el-input v-show="false" :value="form.index"></el-input>
+        <el-form-item label="Value">
+          <el-input v-model="form.value" placeholder=""></el-input>
+        </el-form-item>
+        <el-button @click="closeDialog">取消</el-button>
+        <el-button @click="addListValue" type="primary" v-if="dialogType==='add'">确定</el-button>
+        <el-button @click="updateListValue" type="primary" v-if="dialogType==='edit'">确定</el-button>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import {deleteKey, updateKey, updateStringValue, updateTtl} from '@/api/redis';
+import {
+  addListValue,
+  deleteKey,
+  deleteListValue,
+  updateKey,
+  updateListValue,
+  updateStringValue,
+  updateTtl
+} from '@/api/redis';
 
 export default {
   name: 'RedisValueInfo',
@@ -138,7 +160,13 @@ export default {
   data() {
     return {
       originalKey: '',
-      originalTtl: -1
+      originalTtl: -1,
+      form: {
+        value: '',
+        index: 0
+      },
+      dialogVisible: false,
+      dialogType: 'add'
     }
   },
   mounted() {
@@ -222,6 +250,69 @@ export default {
           }
         })
       }
+    },
+    showAddDialog() {
+      this.dialogType = 'add'
+      this.dialogVisible = true
+    },
+    showEditDialog(row, index) {
+      this.dialogType = 'edit'
+      this.dialogVisible = true
+      this.form.value = row.value
+      this.form.index = index
+    },
+    addListValue() {
+      addListValue(this.info.connectionKey, this.info.database, this.originalKey, this.form.value).then(res => {
+        console.log(res.data)
+        if (res.data.code === 200) {
+          const message = res.data.message
+          this.dialogVisible = false
+          this.$emit('refresh-data', this.info)
+          this.$message({
+            showClose: true,
+            message: message,
+            type: 'success'
+          })
+        }
+      })
+    },
+    updateListValue() {
+      updateListValue(this.info.connectionKey, this.info.database, this.originalKey, this.form.index, this.form.value).then(res => {
+        console.log(res.data)
+        if (res.data.code === 200) {
+          const message = res.data.message
+          this.dialogVisible = false
+          this.$emit('refresh-data', this.info)
+          this.$message({
+            showClose: true,
+            message: message,
+            type: 'success'
+          })
+        }
+      })
+    },
+    deleteListValue(row) {
+      this.$confirm('是否确认删除这条数据？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteListValue(this.info.connectionKey, this.info.database, this.originalKey, row.value).then(res => {
+          console.log(res.data)
+          if (res.data.code === 200) {
+            const message = res.data.message
+            this.$emit('refresh-data', this.info)
+            this.$message({
+              showClose: true,
+              message: message,
+              type: 'success'
+            })
+          }
+        })
+      })
+    },
+    closeDialog() {
+      this.dialogVisible = false
     }
   }
 }
@@ -230,5 +321,10 @@ export default {
 <style scoped>
 .content {
   margin-top: 30px
+}
+
+.table-title {
+  margin: 10px 0;
+  text-align: left;
 }
 </style>
