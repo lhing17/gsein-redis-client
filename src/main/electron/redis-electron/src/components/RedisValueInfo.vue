@@ -63,7 +63,7 @@
             label="操作"
             width="200">
             <template slot-scope="scope">
-              <el-button @click="updateSetValue(scope.row)" type="text" size="small">编辑</el-button>
+              <el-button @click="showEditDialog(scope.row, scope.$index)" type="text" size="small">编辑</el-button>
               <el-button @click="deleteSetValue(scope.row)" type="text" size="small">删除</el-button>
             </template>
           </el-table-column>
@@ -89,7 +89,7 @@
             label="操作"
             width="200">
             <template slot-scope="scope">
-              <el-button @click="updateHashValue(scope.row)" type="text" size="small">编辑</el-button>
+              <el-button @click="showEditDialog(scope.row, scope.$index)" type="text" size="small">编辑</el-button>
               <el-button @click="deleteHashValue(scope.row)" type="text" size="small">删除</el-button>
             </template>
           </el-table-column>
@@ -115,7 +115,7 @@
             label="操作"
             width="200">
             <template slot-scope="scope">
-              <el-button @click="updateZsetValue(scope.row)" type="text" size="small">编辑</el-button>
+              <el-button @click="showEditDialog(scope.row, scope.$index)" type="text" size="small">编辑</el-button>
               <el-button @click="deleteZsetValue(scope.row)" type="text" size="small">删除</el-button>
             </template>
           </el-table-column>
@@ -123,14 +123,16 @@
       </div>
     </div>
     <el-dialog :title="dialogType==='add' ? '添加新行': '修改行'" :visible.sync="dialogVisible">
-      <el-form ref="form" :model="form" label-width="80px" v-if="info.type==='list'">
+      <el-form ref="form" :model="form" label-width="80px" v-if="info.type==='list' || info.type === 'set'">
         <el-input v-show="false" :value="form.index"></el-input>
         <el-form-item label="Value">
           <el-input v-model="form.value" placeholder=""></el-input>
         </el-form-item>
         <el-button @click="closeDialog">取消</el-button>
-        <el-button @click="addListValue" type="primary" v-if="dialogType==='add'">确定</el-button>
-        <el-button @click="updateListValue" type="primary" v-if="dialogType==='edit'">确定</el-button>
+        <el-button @click="addListValue" type="primary" v-if="dialogType==='add' && info.type==='list'">确定</el-button>
+        <el-button @click="addSetValue" type="primary" v-if="dialogType==='add' && info.type==='set'">确定</el-button>
+        <el-button @click="updateListValue" type="primary" v-if="dialogType==='edit' && info.type==='list'">确定</el-button>
+        <el-button @click="updateSetValue" type="primary" v-if="dialogType==='edit' && info.type==='set'">确定</el-button>
       </el-form>
     </el-dialog>
   </div>

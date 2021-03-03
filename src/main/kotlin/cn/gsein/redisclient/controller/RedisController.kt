@@ -105,6 +105,44 @@ class RedisController {
         return buildAjaxResult(result)
     }
 
+    @PostMapping("/add-set-value")
+    fun addSetValue(key: String, database: Int, redisKey: String, redisValue: String): AjaxResult<Any?> {
+        return when (redisService.addSetValue(key, database, redisKey, redisValue)) {
+            0L -> AjaxResult.error("值已存在")
+            1L -> AjaxResult.ok()
+            else -> AjaxResult.error("操作异常")
+        }
+    }
+
+    @PostMapping("/add-hash-value")
+    fun addHashValue(
+        key: String,
+        database: Int,
+        redisKey: String,
+        redisHashKey: String,
+        redisHashValue: String
+    ): AjaxResult<Any?> {
+        return when (redisService.addHashValue(key, database, redisKey, redisHashKey, redisHashValue)) {
+            false -> AjaxResult.error("值已存在")
+            true -> AjaxResult.ok()
+        }
+    }
+
+    @PostMapping("/add-zset-value")
+    fun addZsetValue(
+        key: String,
+        database: Int,
+        redisKey: String,
+        score: Double,
+        redisValue: String
+    ): AjaxResult<Any?> {
+        return when (redisService.addZsetValue(key, database, redisKey, score, redisValue)) {
+            0L -> AjaxResult.error("值已存在，已更新分值")
+            1L -> AjaxResult.ok()
+            else -> AjaxResult.error("操作异常")
+        }
+    }
+
     @PostMapping("/update-list-value")
     fun updateListValue(
         key: String,

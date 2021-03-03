@@ -110,6 +110,42 @@ class RedisService {
     }
 
     /**
+     * 向Set中添加一条数据
+     */
+    fun addSetValue(key: String, database: Int, redisKey: String, redisValue: String): Long {
+        log.info("向set中添加一条数据，key: $key, database: $database, redisKey: $redisKey, redisValue: $redisValue")
+        val connection = getConnection(key, database)
+        return connection.sync().sadd(redisKey, redisValue)
+    }
+
+    /**
+     * 向hash中添加一条数据，如果数据已存在，返回false
+     */
+    fun addHashValue(
+        key: String,
+        database: Int,
+        redisKey: String,
+        redisHashKey: String,
+        redisHashValue: String
+    ): Boolean {
+        log.info("向hash中添加一条数据，key: $key, database: $database, redisKey: $redisKey, redisHashKey:$redisHashKey, redisHashValue: $redisHashValue")
+        val connection = getConnection(key, database)
+        return connection.sync().hsetnx(redisKey, redisHashKey, redisHashValue)
+    }
+
+    fun addZsetValue(
+        key: String,
+        database: Int,
+        redisKey: String,
+        score: Double,
+        redisValue: String
+    ): Long {
+        log.info("向zset中添加一条数据，key: $key, database: $database, redisKey: $redisKey, score:$score, redisValue: $redisValue")
+        val connection = getConnection(key, database)
+        return connection.sync().zadd(redisKey, score, redisValue)
+    }
+
+    /**
      * 修改String类型数据的值
      */
     fun updateStringValue(key: String, database: Int, redisKey: String, redisValue: String): Boolean {
@@ -127,6 +163,44 @@ class RedisService {
         return "OK" == connection.sync().lset(redisKey, redisIndex, redisValue)
     }
 
+    fun updateSetValue(key: String, database: Int, redisKey: String, oldRedisValue: String, newRedisValue: String) {
+        log.info("更新Set类型数据，key: $key, database: $database, redisKey: $redisKey, oldRedisValue: $oldRedisValue, newRedisValue: $newRedisValue")
+        val connection = getConnection(key, database)
+    }
+
+    /**
+     * 修改hash类型的数据
+     */
+    fun updateHashValue(
+        key: String,
+        database: Int,
+        redisKey: String,
+        redisHashKey: String,
+        redisHashValue: String
+    ): Boolean {
+        log.info("更新hash中的数据，key: $key, database: $database, redisKey: $redisKey, redisHashKey:$redisHashKey, redisHashValue: $redisHashValue")
+        val connection = getConnection(key, database)
+        return !connection.sync().hset(redisKey, redisHashKey, redisHashValue)
+    }
+
+    /**
+     * 修改zset类型的数据
+     */
+    fun updateZsetValue(
+        key: String,
+        database: Int,
+        redisKey: String,
+        score: Double,
+        redisValue: String
+    ): Boolean {
+        log.info("更新zset中的数据，key: $key, database: $database, redisKey: $redisKey, score:$score, redisValue: $redisValue")
+        val connection = getConnection(key, database)
+
+        // 已有数据更新返回0
+        return connection.sync().zadd(redisKey, score, redisValue) == 0L
+    }
+
+
     /**
      * 删除List类型指定值的一条数据
      */
@@ -134,6 +208,33 @@ class RedisService {
         log.info("删除List类型其中一条数据, key: $key, database: $database, redisKey: $redisKey, redisValue: $redisValue")
         val connection = getConnection(key, database)
         return connection.sync().lrem(redisKey, 1, redisValue) == 1L
+    }
+
+    /**
+     * 删除Set类型指定值的一条数据
+     */
+    fun deleteSetValue(key: String, database: Int, redisKey: String, redisValue: String): Boolean {
+        log.info("删除Set类型其中一条数据, key: $key, database: $database, redisKey: $redisKey, redisValue: $redisValue")
+        val connection = getConnection(key, database)
+        return connection.sync().srem(redisKey, redisValue) == 1L
+    }
+
+    /**
+     * 删除Hash类型指定值的一条数据
+     */
+    fun deleteHashValue(key: String, database: Int, redisKey: String, redisHashKey: String): Boolean {
+        log.info("删除Hash类型其中一条数据, key: $key, database: $database, redisKey: $redisKey, redisHashKey: $redisHashKey")
+        val connection = getConnection(key, database)
+        return connection.sync().hdel(redisKey, redisHashKey) == 1L
+    }
+
+    /**
+     * 删除Zset类型指定值的一条数据
+     */
+    fun deleteZsetValue(key: String, database: Int, redisKey: String, redisValue: String): Boolean {
+        log.info("删除Zset类型其中一条数据, key: $key, database: $database, redisKey: $redisKey, redisValue: $redisValue")
+        val connection = getConnection(key, database)
+        return connection.sync().zrem(redisKey, redisValue) == 1L
     }
 
     /**
