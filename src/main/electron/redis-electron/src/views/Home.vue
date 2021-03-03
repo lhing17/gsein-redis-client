@@ -120,6 +120,7 @@ export default {
       for (const tab of this.editableTabs) {
         if (tab.name === title) {
           existsFlag = true
+          this.activeName = title
           console.log('exists')
           break
         }
@@ -130,6 +131,7 @@ export default {
             const info = res.data.data
             info.connectionKey = address.key
             info.database = address.database
+            console.log('info: ', info)
             this.editableTabs.push({
               title: title,
               name: title,
@@ -148,6 +150,7 @@ export default {
       let existsFlag = false
       for (const tab of this.editableTabs) {
         if (tab.name === this.addresses[index].key) {
+          this.activeName = tab.name
           existsFlag = true
           console.log('exists')
           break

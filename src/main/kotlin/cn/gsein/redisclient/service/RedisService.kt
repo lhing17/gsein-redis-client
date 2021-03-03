@@ -74,16 +74,20 @@ class RedisService {
                 redisCommands.get(redisKey)
             }
             "hash" -> {
-                redisCommands.hgetall(redisKey)
+                val map = redisCommands.hgetall(redisKey)
+                map.entries.map { mapOf("key" to it.key, "value" to it.value) }
             }
             "list" -> {
-                redisCommands.lrange(redisKey, 0, -1)
+                val list = redisCommands.lrange(redisKey, 0, -1)
+                list.map { mapOf("value" to it) }
             }
             "set" -> {
-                redisCommands.smembers(redisKey)
+                val set = redisCommands.smembers(redisKey)
+                set.map { mapOf("value" to it) }
             }
             "zset" -> {
-                redisCommands.zrangeWithScores(redisKey, 0, -1)
+                val list = redisCommands.zrangeWithScores(redisKey, 0, -1)
+                list.map { mapOf("score" to it.score, "value" to it.value) }
             }
             else -> {
                 ""
@@ -121,6 +125,15 @@ class RedisService {
         log.info("对redis数据进行重命名，key: $key, database: $database, redisKey: $redisKey, newRedisKey: $newRedisKey")
         val connection = getConnection(key, database)
         return connection.sync().renamenx(redisKey, newRedisKey)
+    }
+
+    /**
+     * 删除key
+     */
+    fun deleteKey(key: String, database: Int, redisKey: String): Boolean {
+        log.info("删除redis的key，key: $key, database: $database, redisKey: $redisKey")
+        val connection = getConnection(key, database)
+        return connection.sync().del(redisKey) == 1L
     }
 
 

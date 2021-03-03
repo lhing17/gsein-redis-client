@@ -97,5 +97,11 @@ class RedisController {
         return if (result) AjaxResult.ok() else AjaxResult.error("操作异常")
     }
 
+    @PostMapping("/delete-key")
+    fun deleteKey(key: String, database: Int, redisKey: String): AjaxResult<Any?> {
+        val result = redisService.deleteKey(key, database, redisKey)
+        return if (result) AjaxResult.ok() else AjaxResult.error("操作异常")
+    }
+
 
 }

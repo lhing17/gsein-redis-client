@@ -45,3 +45,9 @@ export const updateTtl = (key, database, redisKey, ttl) => axios({
   method: 'post',
   params: {key, database, redisKey, ttl}
 })
+
+export const deleteKey = (key, database, redisKey) => axios({
+  url: baseUrl + 'redis/delete-key',
+  method: 'post',
+  params: {key, database, redisKey}
+})
