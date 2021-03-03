@@ -13,8 +13,8 @@
           <el-button slot="suffix" type="text" @click="updateTtl" class="el-input__icon el-icon-check"></el-button>
         </el-input>
       </el-col>
-      <el-button type="danger" icon="el-icon-delete"></el-button>
-      <el-button type="success" icon="el-icon-refresh"></el-button>
+      <el-button type="danger" icon="el-icon-delete" @click="deleteKey"></el-button>
+      <el-button type="success" icon="el-icon-refresh" @click="refreshData"></el-button>
     </el-row>
     <div class="content">
       <div v-if="info.type==='string'">
@@ -223,17 +223,7 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          deleteKey(this.info.connectionKey, this.info.database, this.originalKey).then(res => {
-            console.log(res)
-            if (res.data.code === 200) {
-              const message = res.data.message
-              this.$message({
-                showClose: true,
-                message: message,
-                type: 'success'
-              })
-            }
-          })
+          this.deleteKey()
         })
       } else {
         updateTtl(this.info.connectionKey, this.info.database, this.originalKey, this.info.ttl).then(res => {
@@ -254,6 +244,8 @@ export default {
     showAddDialog() {
       this.dialogType = 'add'
       this.dialogVisible = true
+      this.form.value = ''
+      this.form.index = -1
     },
     showEditDialog(row, index) {
       this.dialogType = 'edit'
@@ -282,6 +274,7 @@ export default {
         if (res.data.code === 200) {
           const message = res.data.message
           this.dialogVisible = false
+          this.info.key = this.originalKey
           this.$emit('refresh-data', this.info)
           this.$message({
             showClose: true,
@@ -290,6 +283,10 @@ export default {
           })
         }
       })
+    },
+    refreshData() {
+      this.info.key = this.originalKey
+      this.$emit('refresh-data', this.info)
     },
     deleteListValue(row) {
       this.$confirm('是否确认删除这条数据？', '提示', {
@@ -301,6 +298,7 @@ export default {
           console.log(res.data)
           if (res.data.code === 200) {
             const message = res.data.message
+            this.info.key = this.originalKey
             this.$emit('refresh-data', this.info)
             this.$message({
               showClose: true,
@@ -309,6 +307,30 @@ export default {
             })
           }
         })
+      })
+    },
+    doDeleteKey() {
+      deleteKey(this.info.connectionKey, this.info.database, this.originalKey).then(res => {
+        console.log(res)
+        if (res.data.code === 200) {
+          const message = res.data.message
+          this.info.key = this.originalKey
+          this.$emit('delete-key', this.info)
+          this.$message({
+            showClose: true,
+            message: message,
+            type: 'success'
+          })
+        }
+      })
+    },
+    deleteKey() {
+      this.$confirm(`是否确认删除${this.originalKey}？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.doDeleteKey()
       })
     },
     closeDialog() {

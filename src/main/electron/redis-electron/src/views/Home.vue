@@ -5,7 +5,6 @@
     </el-header>
     <el-container>
       <el-aside width="300px">
-
         <el-menu @select="handleMenuItemSelected" @open="handleOpenSubMenu" :unique-opened="true">
           <el-submenu v-for="(address, i) in addresses" :key="address.key" :index="i+''">
             <template slot="title">
@@ -41,7 +40,8 @@
         <el-tabs v-model="activeName" type="card" @tab-click="handleTabClick" closable @tab-remove="handleTabRemove">
           <el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name">
             <redis-info :info="item.content" v-if="item.type === 0"></redis-info>
-            <redis-value-info :info="item.content" v-if="item.type === 1" @refresh-data="refreshRedisValue"/>
+            <redis-value-info :info="item.content" v-if="item.type === 1" @refresh-data="refreshRedisValue"
+                              @delete-key="handleDeleteKey"/>
           </el-tab-pane>
         </el-tabs>
       </el-main>
@@ -252,6 +252,21 @@ export default {
           }
         )
       }
+    },
+    handleDeleteKey(info) {
+      console.log(`删除key为${info.key}的数据`)
+      const redisKey = info.key
+      const key = info.connectionKey
+      const database = info.database
+      const address = this.getAddressByKey(key)
+
+      const title = redisKey + ' | ' + address.host + '@' + address.port + ' | db' + database
+
+      // 关闭当前tab页
+      this.handleTabRemove(title)
+
+      // 更新keys
+      address.keys = address.keys.filter(k => k !== redisKey)
     }
   },
   mounted() {
