@@ -48,6 +48,9 @@
         </el-table>
       </div>
       <div v-if="info.type==='set'">
+        <div class="table-title">
+          <el-button icon="el-icon-plus" circle @click="showAddDialog"></el-button>
+        </div>
         <el-table border style="width: 100%" :data="info.value">
           <el-table-column
             prop="id"
@@ -70,6 +73,9 @@
         </el-table>
       </div>
       <div v-if="info.type==='hash'">
+        <div class="table-title">
+          <el-button icon="el-icon-plus" circle @click="showAddDialog"></el-button>
+        </div>
         <el-table border style="width: 100%" :data="info.value">
           <el-table-column
             prop="id"
@@ -96,6 +102,9 @@
         </el-table>
       </div>
       <div v-if="info.type==='zset'">
+        <div class="table-title">
+          <el-button icon="el-icon-plus" circle @click="showAddDialog"></el-button>
+        </div>
         <el-table border style="width: 100%" :data="info.value">
           <el-table-column
             prop="id"
@@ -126,13 +135,34 @@
       <el-form ref="form" :model="form" label-width="80px" v-if="info.type==='list' || info.type === 'set'">
         <el-input v-show="false" :value="form.index"></el-input>
         <el-form-item label="Value">
-          <el-input v-model="form.value" placeholder=""></el-input>
+          <el-input v-model="form.value" placeholder="" type="textarea" :autosize="{ minRows: 3 }"></el-input>
         </el-form-item>
         <el-button @click="closeDialog">取消</el-button>
         <el-button @click="addListValue" type="primary" v-if="dialogType==='add' && info.type==='list'">确定</el-button>
         <el-button @click="addSetValue" type="primary" v-if="dialogType==='add' && info.type==='set'">确定</el-button>
-        <el-button @click="updateListValue" type="primary" v-if="dialogType==='edit' && info.type==='list'">确定</el-button>
+        <el-button @click="updateListValue" type="primary" v-if="dialogType==='edit' && info.type==='list'">确定
+        </el-button>
         <el-button @click="updateSetValue" type="primary" v-if="dialogType==='edit' && info.type==='set'">确定</el-button>
+      </el-form>
+      <el-form ref="form" :model="form" label-width="80px" v-if="info.type==='hash' || info.type === 'zset'">
+        <el-input v-show="false" :value="form.index"></el-input>
+        <el-form-item v-if="info.type==='hash'" label="Field">
+          <el-input v-model="form.field" placeholder="" :disabled="dialogType==='edit'"></el-input>
+        </el-form-item>
+        <el-form-item v-if="info.type==='zset'" label="Score">
+          <el-input v-model="form.field" placeholder=""></el-input>
+        </el-form-item>
+        <el-form-item label="Value">
+          <el-input v-model="form.value" placeholder="" type="textarea" :autosize="{ minRows: 3 }"
+                    :disabled="info.type==='zset' && dialogType==='edit'"></el-input>
+        </el-form-item>
+        <el-button @click="closeDialog">取消</el-button>
+        <el-button @click="addHashValue" type="primary" v-if="dialogType==='add' && info.type==='hash'">确定</el-button>
+        <el-button @click="addZsetValue" type="primary" v-if="dialogType==='add' && info.type==='zset'">确定</el-button>
+        <el-button @click="updateHashValue" type="primary" v-if="dialogType==='edit' && info.type==='hash'">确定
+        </el-button>
+        <el-button @click="updateZsetValue" type="primary" v-if="dialogType==='edit' && info.type==='zset'">确定
+        </el-button>
       </el-form>
     </el-dialog>
   </div>
@@ -140,13 +170,14 @@
 
 <script>
 import {
-  addListValue,
+  addHashValue,
+  addListValue, addSetValue, addZsetValue, deleteHashValue,
   deleteKey,
-  deleteListValue,
+  deleteListValue, deleteSetValue, deleteZsetValue, updateHashValue,
   updateKey,
-  updateListValue,
+  updateListValue, updateSetValue,
   updateStringValue,
-  updateTtl
+  updateTtl, updateZsetValue
 } from '@/api/redis';
 
 export default {
@@ -162,8 +193,10 @@ export default {
   data() {
     return {
       originalKey: '',
+      originalValue: '',
       originalTtl: -1,
       form: {
+        field: '',
         value: '',
         index: 0
       },
@@ -248,43 +281,51 @@ export default {
       this.dialogVisible = true
       this.form.value = ''
       this.form.index = -1
+      this.form.field = ''
     },
     showEditDialog(row, index) {
       this.dialogType = 'edit'
       this.dialogVisible = true
       this.form.value = row.value
-      this.form.index = index
+      if (this.info.type === 'zset') {
+        this.form.field = row.score
+      } else {
+        this.form.field = row.key
+      }
+      this.form.index = index;
+      this.originalValue = row.value
     },
     addListValue() {
-      addListValue(this.info.connectionKey, this.info.database, this.originalKey, this.form.value).then(res => {
-        console.log(res.data)
-        if (res.data.code === 200) {
-          const message = res.data.message
-          this.dialogVisible = false
-          this.$emit('refresh-data', this.info)
-          this.$message({
-            showClose: true,
-            message: message,
-            type: 'success'
-          })
-        }
-      })
+      addListValue(this.info.connectionKey, this.info.database, this.originalKey, this.form.value)
+        .then(res => this.showMessageAndRefreshData(res))
+    },
+    addSetValue() {
+      addSetValue(this.info.connectionKey, this.info.database, this.originalKey, this.form.value)
+        .then(res => this.showMessageAndRefreshData(res))
+    },
+    addHashValue() {
+      addHashValue(this.info.connectionKey, this.info.database, this.originalKey, this.form.field, this.form.value)
+        .then(res => this.showMessageAndRefreshData(res))
+    },
+    addZsetValue() {
+      addZsetValue(this.info.connectionKey, this.info.database, this.originalKey, this.form.score, this.form.value)
+        .then(res => this.showMessageAndRefreshData(res))
     },
     updateListValue() {
-      updateListValue(this.info.connectionKey, this.info.database, this.originalKey, this.form.index, this.form.value).then(res => {
-        console.log(res.data)
-        if (res.data.code === 200) {
-          const message = res.data.message
-          this.dialogVisible = false
-          this.info.key = this.originalKey
-          this.$emit('refresh-data', this.info)
-          this.$message({
-            showClose: true,
-            message: message,
-            type: 'success'
-          })
-        }
-      })
+      updateListValue(this.info.connectionKey, this.info.database, this.originalKey, this.form.index, this.form.value)
+        .then(res => this.showMessageAndRefreshData(res))
+    },
+    updateSetValue() {
+      updateSetValue(this.info.connectionKey, this.info.database, this.originalKey, this.originalValue, this.form.value)
+        .then(res => this.showMessageAndRefreshData(res))
+    },
+    updateHashValue() {
+      updateHashValue(this.info.connectionKey, this.info.database, this.originalKey, this.form.field, this.form.value)
+        .then(res => this.showMessageAndRefreshData(res))
+    },
+    updateZsetValue() {
+      updateZsetValue(this.info.connectionKey, this.info.database, this.originalKey, this.form.field, this.form.value)
+        .then(res => this.showMessageAndRefreshData(res))
     },
     refreshData() {
       this.info.key = this.originalKey
@@ -296,20 +337,60 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteListValue(this.info.connectionKey, this.info.database, this.originalKey, row.value).then(res => {
-          console.log(res.data)
-          if (res.data.code === 200) {
-            const message = res.data.message
-            this.info.key = this.originalKey
-            this.$emit('refresh-data', this.info)
-            this.$message({
-              showClose: true,
-              message: message,
-              type: 'success'
-            })
-          }
-        })
+        deleteListValue(this.info.connectionKey, this.info.database, this.originalKey, row.value)
+          .then(res => this.showMessageAndRefreshData(res))
       })
+    },
+    deleteSetValue(row) {
+      this.$confirm('是否确认删除这条数据？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteSetValue(this.info.connectionKey, this.info.database, this.originalKey, row.value)
+          .then(res => this.showMessageAndRefreshData(res))
+      })
+    },
+    deleteHashValue(row) {
+      this.$confirm('是否确认删除这条数据？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteHashValue(this.info.connectionKey, this.info.database, this.originalKey, row.key)
+          .then(res => this.showMessageAndRefreshData(res))
+      })
+    },
+    deleteZsetValue(row) {
+      this.$confirm('是否确认删除这条数据？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteZsetValue(this.info.connectionKey, this.info.database, this.originalKey, row.value)
+          .then(res => this.showMessageAndRefreshData(res))
+      })
+    },
+    showMessageAndRefreshData(res) {
+      console.log(res.data)
+      if (res.data.code === 200) {
+        this.dialogVisible = false
+        const message = res.data.message
+        this.info.key = this.originalKey
+        this.$emit('refresh-data', this.info)
+        this.$message({
+          showClose: true,
+          message: message,
+          type: 'success'
+        })
+      } else {
+        this.dialogVisible = false
+        this.$message({
+          showClose: true,
+          message: res.data.message,
+          type: 'error'
+        })
+      }
     },
     doDeleteKey() {
       deleteKey(this.info.connectionKey, this.info.database, this.originalKey).then(res => {
@@ -322,6 +403,12 @@ export default {
             showClose: true,
             message: message,
             type: 'success'
+          })
+        } else {
+          this.$message({
+            showClose: true,
+            message: res.data.message,
+            type: 'error'
           })
         }
       })

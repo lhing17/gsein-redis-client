@@ -164,7 +164,7 @@ class RedisService {
     }
 
     /**
-     * 修改Set类型数据值
+     * 修改Set类型数据值 0-值已存在 1-操作成功 2-操作异常
      */
     fun updateSetValue(
         key: String,
@@ -172,7 +172,7 @@ class RedisService {
         redisKey: String,
         oldRedisValue: String,
         newRedisValue: String
-    ): Boolean {
+    ): Int {
         log.info("更新Set类型数据，key: $key, database: $database, redisKey: $redisKey, oldRedisValue: $oldRedisValue, newRedisValue: $newRedisValue")
         val connection = getConnection(key, database)
         val redisCommands = connection.sync()
@@ -182,9 +182,9 @@ class RedisService {
             redisCommands.srem(redisKey, oldRedisValue)
             redisCommands.sadd(redisKey, newRedisValue)
             val result = redisCommands.exec()
-            return !result.wasDiscarded()
+            return if (result.wasDiscarded()) 2 else 1
         }
-        return false
+        return 0
     }
 
     /**
@@ -199,7 +199,10 @@ class RedisService {
     ): Boolean {
         log.info("更新hash中的数据，key: $key, database: $database, redisKey: $redisKey, redisHashKey:$redisHashKey, redisHashValue: $redisHashValue")
         val connection = getConnection(key, database)
-        return !connection.sync().hset(redisKey, redisHashKey, redisHashValue)
+        val redisCommands = connection.sync()
+        val hexists = redisCommands.hexists(redisKey, redisHashKey)
+        if (!hexists) return false
+        return !redisCommands.hset(redisKey, redisHashKey, redisHashValue)
     }
 
     /**

@@ -163,7 +163,11 @@ class RedisController {
         oldRedisValue: String,
         newRedisValue: String
     ): AjaxResult<Any?> {
-        return buildAjaxResult(redisService.updateSetValue(key, database, redisKey, oldRedisValue, newRedisValue))
+        return when (redisService.updateSetValue(key, database, redisKey, oldRedisValue, newRedisValue)) {
+            0 -> AjaxResult.error("值已存在")
+            1 -> AjaxResult.ok()
+            else -> AjaxResult.error("操作异常")
+        }
     }
 
     @PostMapping("/update-hash-value")

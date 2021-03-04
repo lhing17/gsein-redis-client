@@ -88,20 +88,17 @@ export const updateSetValue = (key, database, redisKey, oldRedisValue, newRedisV
   params: {key, database, redisKey, oldRedisValue, newRedisValue}
 })
 
-
 export const updateHashValue = (key, database, redisKey, redisHashKey, redisHashValue) => axios({
   url: baseUrl + 'redis/update-hash-value',
   method: 'post',
   params: {key, database, redisKey, redisHashKey, redisHashValue}
 })
 
-
 export const updateZsetValue = (key, database, redisKey, score, redisValue) => axios({
   url: baseUrl + 'redis/update-zset-value',
   method: 'post',
   params: {key, database, redisKey, score, redisValue}
 })
-
 
 export const deleteListValue = (key, database, redisKey, redisValue) => axios({
   url: baseUrl + 'redis/delete-list-value',
