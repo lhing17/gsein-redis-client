@@ -163,9 +163,28 @@ class RedisService {
         return "OK" == connection.sync().lset(redisKey, redisIndex, redisValue)
     }
 
-    fun updateSetValue(key: String, database: Int, redisKey: String, oldRedisValue: String, newRedisValue: String) {
+    /**
+     * 修改Set类型数据值
+     */
+    fun updateSetValue(
+        key: String,
+        database: Int,
+        redisKey: String,
+        oldRedisValue: String,
+        newRedisValue: String
+    ): Boolean {
         log.info("更新Set类型数据，key: $key, database: $database, redisKey: $redisKey, oldRedisValue: $oldRedisValue, newRedisValue: $newRedisValue")
         val connection = getConnection(key, database)
+        val redisCommands = connection.sync()
+        val isMember = redisCommands.sismember(redisKey, newRedisValue)
+        if (!isMember) {
+            redisCommands.multi()
+            redisCommands.srem(redisKey, oldRedisValue)
+            redisCommands.sadd(redisKey, newRedisValue)
+            val result = redisCommands.exec()
+            return !result.wasDiscarded()
+        }
+        return false
     }
 
     /**

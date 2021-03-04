@@ -58,14 +58,71 @@ export const addListValue = (key, database, redisKey, redisValue) => axios({
   params: {key, database, redisKey, redisValue}
 })
 
+export const addSetValue = (key, database, redisKey, redisValue) => axios({
+  url: baseUrl + 'redis/add-set-value',
+  method: 'post',
+  params: {key, database, redisKey, redisValue}
+})
+
+export const addHashValue = (key, database, redisKey, redisHashKey, redisHashValue) => axios({
+  url: baseUrl + 'redis/add-hash-value',
+  method: 'post',
+  params: {key, database, redisKey, redisHashKey, redisHashValue}
+})
+
+export const addZsetValue = (key, database, redisKey, score, redisValue) => axios({
+  url: baseUrl + 'redis/add-zset-value',
+  method: 'post',
+  params: {key, database, redisKey, score, redisValue}
+})
+
 export const updateListValue = (key, database, redisKey, redisIndex, redisValue) => axios({
   url: baseUrl + 'redis/update-list-value',
   method: 'post',
   params: {key, database, redisKey, redisIndex, redisValue}
 })
 
+export const updateSetValue = (key, database, redisKey, oldRedisValue, newRedisValue) => axios({
+  url: baseUrl + 'redis/update-set-value',
+  method: 'post',
+  params: {key, database, redisKey, oldRedisValue, newRedisValue}
+})
+
+
+export const updateHashValue = (key, database, redisKey, redisHashKey, redisHashValue) => axios({
+  url: baseUrl + 'redis/update-hash-value',
+  method: 'post',
+  params: {key, database, redisKey, redisHashKey, redisHashValue}
+})
+
+
+export const updateZsetValue = (key, database, redisKey, score, redisValue) => axios({
+  url: baseUrl + 'redis/update-zset-value',
+  method: 'post',
+  params: {key, database, redisKey, score, redisValue}
+})
+
+
 export const deleteListValue = (key, database, redisKey, redisValue) => axios({
   url: baseUrl + 'redis/delete-list-value',
+  method: 'post',
+  params: {key, database, redisKey, redisValue}
+})
+
+export const deleteSetValue = (key, database, redisKey, redisValue) => axios({
+  url: baseUrl + 'redis/delete-set-value',
+  method: 'post',
+  params: {key, database, redisKey, redisValue}
+})
+
+export const deleteHashValue = (key, database, redisKey, redisHashKey) => axios({
+  url: baseUrl + 'redis/delete-hash-value',
+  method: 'post',
+  params: {key, database, redisKey, redisHashKey}
+})
+
+export const deleteZsetValue = (key, database, redisKey, redisValue) => axios({
+  url: baseUrl + 'redis/delete-zset-value',
   method: 'post',
   params: {key, database, redisKey, redisValue}
 })

@@ -155,10 +155,58 @@ class RedisController {
         return buildAjaxResult(result)
     }
 
+    @PostMapping("/update-set-value")
+    fun updateSetValue(
+        key: String,
+        database: Int,
+        redisKey: String,
+        oldRedisValue: String,
+        newRedisValue: String
+    ): AjaxResult<Any?> {
+        return buildAjaxResult(redisService.updateSetValue(key, database, redisKey, oldRedisValue, newRedisValue))
+    }
+
+    @PostMapping("/update-hash-value")
+    fun updateHashValue(
+        key: String,
+        database: Int,
+        redisKey: String,
+        redisHashKey: String,
+        redisHashValue: String
+    ): AjaxResult<Any?> {
+        return buildAjaxResult(redisService.updateHashValue(key, database, redisKey, redisHashKey, redisHashValue))
+    }
+
+    @PostMapping("/update-zset-value")
+    fun updateZsetValue(
+        key: String,
+        database: Int,
+        redisKey: String,
+        score: Double,
+        redisValue: String
+    ): AjaxResult<Any?> {
+        return buildAjaxResult(redisService.updateZsetValue(key, database, redisKey, score, redisValue))
+    }
+
     @PostMapping("/delete-list-value")
     fun deleteListValue(key: String, database: Int, redisKey: String, redisValue: String): AjaxResult<Any?> {
         val result = redisService.deleteListValue(key, database, redisKey, redisValue)
         return buildAjaxResult(result)
+    }
+
+    @PostMapping("/delete-set-value")
+    fun deleteSetValue(key: String, database: Int, redisKey: String, redisValue: String): AjaxResult<Any?> {
+        return buildAjaxResult(redisService.deleteSetValue(key, database, redisKey, redisValue))
+    }
+
+    @PostMapping("/delete-hash-value")
+    fun deleteHashValue(key: String, database: Int, redisKey: String, redisHashKey: String): AjaxResult<Any?> {
+        return buildAjaxResult(redisService.deleteHashValue(key, database, redisKey, redisHashKey))
+    }
+
+    @PostMapping("/delete-zset-value")
+    fun deleteZsetValue(key: String, database: Int, redisKey: String, redisValue: String): AjaxResult<Any?> {
+        return buildAjaxResult(redisService.deleteZsetValue(key, database, redisKey, redisValue))
     }
 
 
