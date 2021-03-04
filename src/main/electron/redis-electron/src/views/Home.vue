@@ -1,7 +1,9 @@
 <template>
   <el-container>
     <el-header>
-      <el-button icon="el-icon-plus" @click="openConnectionDialog" circle></el-button>
+      <header-button icon="el-icon-plus" @click="openConnectionDialog" name="新建连接"></header-button>
+      <header-button icon="el-icon-plus" @click="openConnectionDialog" name="检查更新"></header-button>
+      <header-button icon="el-icon-plus" @click="openConnectionDialog" name="命令清单"></header-button>
     </el-header>
     <el-container>
       <el-aside width="300px">
@@ -76,10 +78,11 @@
 import {getInfo, getKeys, getValueByKey, listAddresses, newConnection} from '@/api/redis';
 import RedisInfo from '@/components/RedisInfo';
 import RedisValueInfo from '@/components/RedisValueInfo';
+import HeaderButton from '@/components/HeaderButton';
 
 export default {
   name: 'Home',
-  components: {RedisValueInfo, RedisInfo},
+  components: {HeaderButton, RedisValueInfo, RedisInfo},
   data() {
     return {
       form: {

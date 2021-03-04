@@ -17,5 +17,10 @@ module.exports = {
       .set('src', resolve('src'))
       .set('common', resolve('src/common'))
       .set('components', resolve('src/components'));
+  },
+  pluginOptions: {
+    electronBuilder: {
+      nodeIntegration: true
+    }
   }
 };
