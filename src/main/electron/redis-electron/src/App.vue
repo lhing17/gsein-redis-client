@@ -2,9 +2,9 @@
   <div id="app">
 <!--    <home></home>-->
     <div id="nav">
-      <router-link to="/">Home</router-link> |
+      <router-link to="/">Connection</router-link> |
       <router-link to="/cheatsheet">CheatSheet</router-link> |
-      <router-link to="/about">Versions</router-link> |
+      <router-link to="/versions">Versions</router-link> |
       <router-link to="/about">About</router-link>
     </div>
     <router-view/>
