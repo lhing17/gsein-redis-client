@@ -1,5 +1,23 @@
 <template>
   <div class="about">
+    <el-row class="search-row" :gutter="10">
+      <el-col :span="4" :offset="6">
+        <el-input v-model="name" placeholder="请输入命令名称"></el-input>
+      </el-col>
+      <el-col :span="4">
+        <el-select v-model="type" placeholder="请选择类型" style="width: 100%">
+          <el-option
+            v-for="item in options"
+            :key="item"
+            :label="item"
+            :value="item">
+          </el-option>
+        </el-select>
+      </el-col>
+      <el-col :span="2">
+        <el-button @click="handleSearch">查询</el-button>
+      </el-col>
+    </el-row>
     <el-row :gutter="10">
       <el-col :span="8" v-for="(item, index) in data" :key="index">
         <el-card @click.native="handleClickCard(item)" class="command-card">
@@ -24,7 +42,17 @@ export default {
   name: 'CheatSheet',
   data() {
     return {
-      data: commands
+      data: commands,
+      fullData: commands,
+      name: '',
+      type: ''
+    }
+  },
+  computed: {
+    options() {
+      const options = [...new Set(this.fullData.map(d => d.dataGroup))].sort()
+      options.splice(0, 0, 'ALL')
+      return options
     }
   },
   methods: {
@@ -32,12 +60,16 @@ export default {
       console.log(item)
       const url = 'https://redis.io' + item.link
       window.open(url)
-      // ipcRenderer.send('new-page', url)
-      // const view = new BrowserView()
-      // const win = BrowserWindow.getFocusedWindow()
-      // win.setBrowserView(view)
-      // view.setBounds({x: 0, y: 0, width: 300, height: 300})
-      // view.webContents.loadURL(url)
+    },
+    handleSearch() {
+      let data = this.fullData
+      if (this.name) {
+        data = data.filter(d => d.commandName.indexOf(this.name) !== -1)
+      }
+      if (this.type && this.type !== 'ALL') {
+        data = data.filter(d => d.dataGroup === this.type)
+      }
+      this.data = data
     }
   }
 }
@@ -78,5 +110,9 @@ export default {
 .command-summary {
   font-size: 0.8em;
   line-height: 1.5em;
+}
+
+.search-row {
+  margin: 10px 0;
 }
 </style>
