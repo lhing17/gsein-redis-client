@@ -3,10 +3,16 @@ package cn.gsein.redisclient.controller
 import cn.gsein.redisclient.data.AjaxResult
 import cn.gsein.redisclient.data.ConnectionData
 import cn.gsein.redisclient.service.RedisService
+import io.lettuce.core.RedisCommandExecutionException
+import io.lettuce.core.RedisConnectionException
+import io.netty.channel.ConnectTimeoutException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.net.ConnectException
 import javax.annotation.Resource
 
 /**
@@ -17,6 +23,8 @@ import javax.annotation.Resource
 @RequestMapping("/redis")
 class RedisController {
 
+    val log: Logger = LoggerFactory.getLogger(this.javaClass)
+
     @Resource
     lateinit var redisService: RedisService
 
@@ -26,7 +34,7 @@ class RedisController {
     }
 
     @PostMapping("/new-connection")
-    fun newConnection(connectionData: ConnectionData): String {
+    fun newConnection(connectionData: ConnectionData): AjaxResult<Any?> {
         if (connectionData.host == null) {
             connectionData.host = "127.0.0.1"
         }
@@ -34,7 +42,29 @@ class RedisController {
             connectionData.port = 6379
         }
         redisService.registerNewRedisAddress(connectionData)
-        return "abcd"
+        return AjaxResult.ok()
+    }
+
+    @PostMapping("/test-connection")
+    fun testConnection(connectionData: ConnectionData): AjaxResult<Any?> {
+        if (connectionData.host == null) {
+            connectionData.host = "127.0.0.1"
+        }
+        if (connectionData.port == null) {
+            connectionData.port = 6379
+        }
+        return try {
+            if (redisService.testConnection(connectionData)) AjaxResult.ok(message = "连接成功") else AjaxResult.error("连接失败")
+        } catch (e: RedisConnectionException) {
+            log.warn(e.message, e)
+            return when (e.cause) {
+                is ConnectTimeoutException -> AjaxResult.error("连接超时")
+                is ConnectException -> AjaxResult.error("连接失败")
+                is RedisCommandExecutionException -> AjaxResult.error((e.cause as RedisCommandExecutionException).message)
+                else -> AjaxResult.error("连接失败")
+            }
+
+        }
     }
 
     @GetMapping("/list-addresses")

@@ -52,24 +52,25 @@
       </el-main>
     </el-container>
     <el-dialog title="新建连接" :visible.sync="dialogVisible" :before-close="handleClose">
-      <el-form ref="form" :model="form" label-width="80px">
-        <el-form-item label="Host">
+      <el-form ref="form" :model="form" label-width="80px" :rules="rules">
+        <el-form-item label="Host" prop="host">
           <el-input v-model="form.host" placeholder="127.0.0.1"></el-input>
         </el-form-item>
-        <el-form-item label="Port">
-          <el-input v-model="form.port" placeholder="6379"></el-input>
+        <el-form-item label="Port" prop="port">
+          <el-input v-model.number="form.port" placeholder="6379"></el-input>
         </el-form-item>
-        <el-form-item label="Auth">
+        <el-form-item label="Auth" prop="password">
           <el-input v-model="form.password"></el-input>
         </el-form-item>
-        <el-form-item label="Name">
+        <el-form-item label="Name" prop="username">
           <el-input v-model="form.username"></el-input>
         </el-form-item>
-        <el-form-item label="Separator">
+        <el-form-item label="Separator" prop="separator">
           <el-input v-model="form.separator"></el-input>
         </el-form-item>
         <el-button @click="closeDialog">取消</el-button>
         <el-button @click="addConnection" type="primary">确定</el-button>
+        <el-button @click="testConnection" type="primary">测试连接</el-button>
       </el-form>
     </el-dialog>
   </el-container>
@@ -78,7 +79,7 @@
 <script>
 // @ is an alias to /src
 
-import {getInfo, getKeys, getValueByKey, listAddresses, newConnection} from '@/api/redis';
+import {getInfo, getKeys, getValueByKey, listAddresses, newConnection, testConnection} from '@/api/redis';
 import RedisInfo from '@/components/RedisInfo';
 import RedisValueInfo from '@/components/RedisValueInfo';
 import HeaderButton from '@/components/HeaderButton';
@@ -97,7 +98,12 @@ export default {
       editableTabs: [],
       tabIndex: 0,
       activeKey: '',
-      activeIndex: -1
+      activeIndex: -1,
+      rules: {
+        port: [
+          {type: 'integer', min: 1, max: 65535, trigger: 'blur', message: '端口号为1-65535之间的整数'}
+        ]
+      }
     }
   },
   methods: {
@@ -111,7 +117,53 @@ export default {
       this.dialogVisible = true
     },
     addConnection() {
-      newConnection(this.form).then(res => console.log(res))
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          newConnection(this.form).then(res => {
+            console.log(res.data)
+            const message = res.data.message
+            this.dialogVisible = false
+            if (res.data.code === 200) {
+              this.$message({
+                showClose: true,
+                message: message,
+                type: 'success'
+              })
+            } else {
+              this.$message({
+                showClose: true,
+                message: message,
+                type: 'error'
+              })
+            }
+          })
+        } else {
+          this.dialogVisible = false
+          return false
+        }
+      })
+    },
+    testConnection() {
+      testConnection(this.form).then(
+        res => {
+          console.log(res.data)
+          const message = res.data.message
+          this.dialogVisible = false
+          if (res.data.code === 200) {
+            this.$message({
+              showClose: true,
+              message: message,
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              showClose: true,
+              message: message,
+              type: 'error'
+            })
+          }
+        }
+      )
     },
     handleMenuItemSelected(index) {
       const indexPath = index.split('-')

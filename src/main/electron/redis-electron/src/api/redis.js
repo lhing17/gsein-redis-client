@@ -8,6 +8,12 @@ export const newConnection = (form) => axios({
   params: form
 })
 
+export const testConnection = (form) => axios({
+  url: baseUrl + 'redis/test-connection',
+  method: 'post',
+  params: form
+})
+
 export const listAddresses = () => axios({
   url: baseUrl + 'redis/list-addresses',
   method: 'get'

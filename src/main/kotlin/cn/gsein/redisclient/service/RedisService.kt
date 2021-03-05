@@ -325,6 +325,22 @@ class RedisService {
         localStorageService.synchronize(redisAddressMap)
     }
 
+    fun testConnection(connectionData: ConnectionData): Boolean {
+        val builder = RedisURI.builder()
+        val uri = with(builder) {
+            withHost(connectionData.host)
+            connectionData.port?.let { withPort(it) }
+            withPassword(connectionData.password?.toCharArray())
+            withDatabase(0)
+            build()
+        }
+
+        val client = RedisClient.create(uri)
+        val connect = client.connect()
+        val pingResult = connect.sync().ping()
+        return "PONG" == pingResult
+    }
+
     private fun getConnection(uuid: String, database: Int): StatefulRedisConnection<String, String> {
         val connection = connectionMap[uuid]?.get(database)
         return if (connection != null && connection.isOpen) {
