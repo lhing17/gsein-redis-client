@@ -75,6 +75,11 @@ export default {
 }
 </script>
 <style scoped>
+
+.about {
+  padding: 0 10px;
+}
+
 .command-card {
   height: 150px;
   margin-top: 10px;

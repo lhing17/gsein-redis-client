@@ -1,9 +1,12 @@
 <template>
   <el-container>
     <el-header>
-      <header-button icon="el-icon-plus" @click="openConnectionDialog" name="新建连接"></header-button>
-      <header-button icon="el-icon-plus" @click="openConnectionDialog" name="检查更新"></header-button>
-      <header-button icon="el-icon-plus" @click="openConnectionDialog" name="命令清单"></header-button>
+      <header-button class="header-button" icon="el-icon-plus" @click="openConnectionDialog"
+                     name="新建连接"></header-button>
+      <header-button class="header-button" icon="el-icon-plus" @click="openConnectionDialog"
+                     name="检查更新"></header-button>
+      <header-button class="header-button" icon="el-icon-plus" @click="openConnectionDialog"
+                     name="命令清单"></header-button>
     </el-header>
     <el-container>
       <el-aside width="300px">
@@ -302,6 +305,19 @@ export default {
   /*z-index: 99999;*/
   font-size: 32px;
   color: white;
+}
+
+.el-header {
+  background: #f3f2f1;
+}
+
+.header-button {
+  line-height: 60px;
+}
+
+.header-button /deep/ .el-button {
+  color: #000000;
+  border-radius: 6px;
 }
 
 </style>

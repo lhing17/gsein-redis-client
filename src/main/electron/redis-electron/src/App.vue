@@ -18,6 +18,9 @@
   -moz-osx-font-smoothing grayscale
   text-align center
   color #2c3e50
+#nav
+  background #f3f2f1
+  padding 10px 0
 </style>
 <script>
 export default {

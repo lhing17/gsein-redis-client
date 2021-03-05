@@ -1,8 +1,9 @@
 <template>
-  <div :style="'width:' + width" class="inline">
-    <el-button :icon="icon" @click="handleClick" type="text">
-      <div>{{ name }}</div>
-    </el-button>
+  <div class="inline">
+    <el-tooltip class="item" effect="dark" :content="name" placement="top-start">
+      <el-button :icon="icon" @click="handleClick" size="mini">
+      </el-button>
+    </el-tooltip>
   </div>
 </template>
 
@@ -37,5 +38,6 @@ export default {
 <style scoped>
 .inline {
   float: left;
+  margin-right: 10px;
 }
 </style>
