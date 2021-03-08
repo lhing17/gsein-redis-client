@@ -8,6 +8,12 @@ export const newConnection = (form) => axios({
   params: form
 })
 
+export const removeConnection = (key) => axios({
+  url: baseUrl + 'redis/remove-connection',
+  method: 'post',
+  params: {key}
+})
+
 export const testConnection = (form) => axios({
   url: baseUrl + 'redis/test-connection',
   method: 'post',

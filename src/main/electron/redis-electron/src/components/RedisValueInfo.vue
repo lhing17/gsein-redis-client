@@ -308,7 +308,7 @@ export default {
         .then(res => this.showMessageAndRefreshData(res))
     },
     addZsetValue() {
-      addZsetValue(this.info.connectionKey, this.info.database, this.originalKey, this.form.score, this.form.value)
+      addZsetValue(this.info.connectionKey, this.info.database, this.originalKey, this.form.field, this.form.value)
         .then(res => this.showMessageAndRefreshData(res))
     },
     updateListValue() {

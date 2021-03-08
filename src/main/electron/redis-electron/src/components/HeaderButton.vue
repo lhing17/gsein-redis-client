@@ -1,7 +1,7 @@
 <template>
   <div class="inline">
     <el-tooltip class="item" effect="dark" :content="name" placement="top-start">
-      <el-button :icon="icon" @click="handleClick" size="mini">
+      <el-button :icon="icon" @click="handleClick" size="mini" :disabled="disabled">
       </el-button>
     </el-tooltip>
   </div>
@@ -25,6 +25,10 @@ export default {
     width: {
       type: String,
       default: () => '10%'
+    },
+    disabled: {
+      type: Boolean,
+      default: () => false
     }
   },
   methods: {
@@ -39,5 +43,16 @@ export default {
 .inline {
   float: left;
   margin-right: 10px;
+}
+.el-button--mini {
+  font-size: 15px;
+  padding: 7px 10px;
+}
+.el-button{
+  color: #000000;
+  border-radius: 6px;
+}
+.el-button.is-disabled{
+  color: #C0C4CC;
 }
 </style>

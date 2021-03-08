@@ -3,23 +3,26 @@
     <el-header>
       <header-button class="header-button" icon="el-icon-plus" @click="openConnectionDialog"
                      name="新建连接"></header-button>
-      <header-button class="header-button" icon="el-icon-plus" @click="openConnectionDialog"
-                     name="检查更新"></header-button>
-      <header-button class="header-button" icon="el-icon-plus" @click="openConnectionDialog"
-                     name="命令清单"></header-button>
+      <header-button class="header-button" icon="el-icon-delete" @click="removeConnection"
+                     name="删除连接" :disabled="activeIndex === -1"></header-button>
+      <header-button class="header-button" icon="el-icon-setting" @click="openConnectionDialog"
+                     name="连接属性" :disabled="activeIndex === -1"></header-button>
+      <header-button class="header-button" icon="el-icon-document-delete" @click="openConnectionDialog"
+                     name="清理无效连接"></header-button>
+      <header-button class="header-button" icon="el-icon-document-delete" @click="openConnectionDialog"
+                     name="打开终端"></header-button>
+      <header-button class="header-button" icon="el-icon-refresh" @click="openConnectionDialog"
+                     name="刷新"></header-button>
+      <header-button class="header-button" icon="el-icon-chat-round" @click="openConnectionDialog"
+                     name="切换语言"></header-button>
     </el-header>
     <el-container>
       <el-aside width="300px">
-        <el-menu @select="handleMenuItemSelected" @open="handleOpenSubMenu" :unique-opened="true">
+        <el-menu @select="handleMenuItemSelected" @open="handleOpenSubMenu" @close="handleCloseSubMenu"
+                 :unique-opened="true" :default-openeds="opened">
           <el-submenu v-for="(address, i) in addresses" :key="address.key" :index="i+''">
             <template slot="title">
-              <span>{{ address.host }}@{{ address.port }}</span>
-              <el-button-group>
-                <el-button icon="el-icon-s-home" type="text" size="mini" plain></el-button>
-                <el-button icon="el-icon-s-home" type="text" size="mini" plain></el-button>
-                <el-button icon="el-icon-refresh" type="text" size="mini" plain></el-button>
-                <el-button icon="el-icon-menu" type="text" size="mini" plain></el-button>
-              </el-button-group>
+              <span class="align-left">{{ address.host }}@{{ address.port }}</span>
             </template>
             <el-menu-item-group>
               <template slot="title">
@@ -79,7 +82,15 @@
 <script>
 // @ is an alias to /src
 
-import {getInfo, getKeys, getValueByKey, listAddresses, newConnection, testConnection} from '@/api/redis';
+import {
+  getInfo,
+  getKeys,
+  getValueByKey,
+  listAddresses,
+  newConnection,
+  removeConnection,
+  testConnection
+} from '@/api/redis';
 import RedisInfo from '@/components/RedisInfo';
 import RedisValueInfo from '@/components/RedisValueInfo';
 import HeaderButton from '@/components/HeaderButton';
@@ -103,7 +114,8 @@ export default {
         port: [
           {type: 'integer', min: 1, max: 65535, trigger: 'blur', message: '端口号为1-65535之间的整数'}
         ]
-      }
+      },
+      opened: []
     }
   },
   methods: {
@@ -114,6 +126,7 @@ export default {
       this.dialogVisible = false
     },
     openConnectionDialog() {
+      this.form = {}
       this.dialogVisible = true
     },
     addConnection() {
@@ -124,6 +137,7 @@ export default {
             const message = res.data.message
             this.dialogVisible = false
             if (res.data.code === 200) {
+              this.updateAddresses()
               this.$message({
                 showClose: true,
                 message: message,
@@ -141,6 +155,34 @@ export default {
           this.dialogVisible = false
           return false
         }
+      })
+    },
+    removeConnection() {
+      this.$confirm('是否确认删除当前连接？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        removeConnection(this.activeKey).then(res => {
+          const message = res.data.message
+          if (res.data.code === 200) {
+            this.updateAddresses()
+            this.activeKey = ''
+            this.activeIndex = -1
+            this.opened = []
+            this.$message({
+              showClose: true,
+              message: message,
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              showClose: true,
+              message: message,
+              type: 'error'
+            })
+          }
+        })
       })
     },
     testConnection() {
@@ -278,6 +320,10 @@ export default {
         });
       }
     },
+    handleCloseSubMenu(index) {
+      this.activeKey = ''
+      this.activeIndex = -1
+    },
     handleTabClick(tab, event) {
       console.log(tab, event)
     },
@@ -325,19 +371,20 @@ export default {
 
       // 更新keys
       address.keys = address.keys.filter(k => k !== redisKey)
+    },
+    updateAddresses() {
+      listAddresses().then(res => {
+        if (res.data.code === 200) {
+          this.addresses = res.data.data
+          this.addresses.forEach(address => {
+            this.$set(address, 'database', 0)
+          })
+        }
+      })
     }
   },
   mounted() {
-    listAddresses().then(res => {
-      console.log(res)
-      if (res.data.code === 200) {
-        this.addresses = res.data.data
-        this.addresses.forEach(address => {
-          this.$set(address, 'database', 0)
-        })
-        console.log(this.addresses)
-      }
-    })
+    this.updateAddresses()
   }
 }
 </script>
@@ -367,9 +414,12 @@ export default {
   line-height: 60px;
 }
 
-.header-button /deep/ .el-button {
-  color: #000000;
-  border-radius: 6px;
+.el-submenu {
+  text-align: left;
+}
+
+.el-submenu.is-opened /deep/ .el-submenu__title {
+  background: #edf5ff;
 }
 
 </style>

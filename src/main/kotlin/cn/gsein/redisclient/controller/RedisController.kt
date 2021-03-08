@@ -45,6 +45,11 @@ class RedisController {
         return AjaxResult.ok()
     }
 
+    @PostMapping("remove-connection")
+    fun removeConnection(key: String): AjaxResult<Any?> {
+        return buildAjaxResult(redisService.removeConnection(key))
+    }
+
     @PostMapping("/test-connection")
     fun testConnection(connectionData: ConnectionData): AjaxResult<Any?> {
         if (connectionData.host == null) {
@@ -77,9 +82,17 @@ class RedisController {
             map["key"] = it.key
             map["separator"] = it.value.separator.toString()
             map["username"] = it.value.username.toString()
+            map["timestamp"] = it.value.createTimestamp.toString()
             map
         }
-        return AjaxResult.ok(list)
+        return AjaxResult.ok(list.sortedBy {
+            val timestamp = it["timestamp"]
+            if (timestamp.isNullOrEmpty() || timestamp == "null") {
+                -1L
+            } else {
+                timestamp.toLong()
+            }
+        })
     }
 
     @GetMapping("/get-info")

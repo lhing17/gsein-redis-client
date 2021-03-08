@@ -325,6 +325,20 @@ class RedisService {
         localStorageService.synchronize(redisAddressMap)
     }
 
+    /**
+     * 移除连接
+     */
+    fun removeConnection(key: String): Boolean {
+        if (redisAddressMap.containsKey(key)) {
+            redisAddressMap.remove(key)
+        }
+        if (connectionMap.containsKey(key)) {
+            connectionMap.remove(key)
+        }
+        localStorageService.synchronize(redisAddressMap)
+        return true
+    }
+
     fun testConnection(connectionData: ConnectionData): Boolean {
         val builder = RedisURI.builder()
         val uri = with(builder) {
