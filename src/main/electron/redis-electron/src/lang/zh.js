@@ -38,5 +38,26 @@ export const lang = {
       title: '2021年3月 - v1.0',
       content: '初版发布'
     }
+  },
+  cheatsheet: {
+    name: '请输入命令名称',
+    type: '请选择类型',
+    search: '查询'
+  },
+  redisInfo: {
+    server: '服务器',
+    version: 'Redis版本：',
+    os: '操作系统：',
+    processId: '进程ID：',
+    memory: '内存',
+    used: '已用内存：',
+    peak: '内存占用峰值：',
+    usedLua: 'Lua占用内存：',
+    status: '状态',
+    connected: '客户端连接数：',
+    connectionsReceived: '历史连接数：',
+    commandsProcessed: '历史命令数：',
+    keyValue: '键值统计',
+    completeInfo: 'Redis信息全集'
   }
 }

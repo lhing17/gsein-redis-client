@@ -2,10 +2,10 @@
   <div class="about">
     <el-row class="search-row" :gutter="10">
       <el-col :span="4" :offset="6">
-        <el-input v-model="name" placeholder="请输入命令名称"></el-input>
+        <el-input v-model="name" :placeholder="$t('lang.cheatsheet.name')"></el-input>
       </el-col>
       <el-col :span="4">
-        <el-select v-model="type" placeholder="请选择类型" style="width: 100%">
+        <el-select v-model="type" :placeholder="$t('lang.cheatsheet.type')" style="width: 100%">
           <el-option
             v-for="item in options"
             :key="item"
@@ -15,7 +15,7 @@
         </el-select>
       </el-col>
       <el-col :span="2">
-        <el-button @click="handleSearch">查询</el-button>
+        <el-button @click="handleSearch">{{ $t('lang.cheatsheet.search') }}</el-button>
       </el-col>
     </el-row>
     <el-row :gutter="10">

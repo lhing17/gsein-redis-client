@@ -38,5 +38,26 @@ export const lang = {
       title: 'March 2021 - v1.0',
       content: 'Initial release'
     }
+  },
+  cheatsheet: {
+    name: 'Enter order name',
+    type: 'Select type',
+    search: 'Search'
+  },
+  redisInfo: {
+    server: 'Server',
+    version: 'Redis Version: ',
+    os: 'OS: ',
+    processId: 'Process ID: ',
+    memory: 'Memory',
+    used: 'Used Memory: ',
+    peak: 'Used Memory Peak: ',
+    usedLua: 'Used Memory Lua: ',
+    status: 'Status',
+    connected: 'Connected Clients: ',
+    connectionsReceived: 'Connections Received: ',
+    commandsProcessed: 'Commands Processed: ',
+    keyValue: 'Key Space',
+    completeInfo: 'Full Redis Information'
   }
 }

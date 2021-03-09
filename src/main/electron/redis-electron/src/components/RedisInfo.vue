@@ -4,18 +4,18 @@
       <el-col :span="8">
         <el-card>
           <div slot="header">
-            <span slot="label"><i class="el-icon-date"></i> 服务器</span>
+            <span slot="label"><i class="el-icon-date"></i> {{ $t('lang.redisInfo.server') }}</span>
           </div>
           <div class="info-line">
-            <span class="info-key">Redis版本：</span>
+            <span class="info-key">{{ $t('lang.redisInfo.version') }}</span>
             <span class="info-value">{{ info.Server.redis_version }}</span>
           </div>
           <div class="info-line">
-            <span class="info-key">OS：</span>
+            <span class="info-key">{{ $t('lang.redisInfo.os') }}</span>
             <span class="info-value">{{ info.Server.os }}</span>
           </div>
           <div class="info-line">
-            <span class="info-key">进程ID：</span>
+            <span class="info-key">{{ $t('lang.redisInfo.processId') }}</span>
             <span class="info-value">{{ info.Server.process_id }}</span>
           </div>
         </el-card>
@@ -23,18 +23,18 @@
       <el-col :span="8">
         <el-card>
           <div slot="header">
-            <span slot="label"><i class="el-icon-date"></i> 内存</span>
+            <span slot="label"><i class="el-icon-date"></i> {{ $t('lang.redisInfo.memory') }}</span>
           </div>
           <div class="info-line">
-            <span class="info-key">已用内存：</span>
+            <span class="info-key">{{ $t('lang.redisInfo.used') }}</span>
             <span class="info-value">{{ info.Memory.used_memory_human }}</span>
           </div>
           <div class="info-line">
-            <span class="info-key">内存占用峰值：</span>
+            <span class="info-key">{{ $t('lang.redisInfo.peak') }}</span>
             <span class="info-value">{{ info.Memory.used_memory_peak_human }}</span>
           </div>
           <div class="info-line">
-            <span class="info-key">Lua占用内存：</span>
+            <span class="info-key">{{ $t('lang.redisInfo.usedLua') }}</span>
             <span class="info-value">{{ info.Memory.used_memory_lua_human }}</span>
           </div>
         </el-card>
@@ -42,18 +42,18 @@
       <el-col :span="8">
         <el-card>
           <div slot="header">
-            <span slot="label"><i class="el-icon-date"></i> 状态</span>
+            <span slot="label"><i class="el-icon-date"></i> {{ $t('lang.redisInfo.status') }}</span>
           </div>
           <div class="info-line">
-            <span class="info-key">客户端连接数：</span>
+            <span class="info-key">{{ $t('lang.redisInfo.connected') }}</span>
             <span class="info-value">{{ info.Clients.connected_clients }}</span>
           </div>
           <div class="info-line">
-            <span class="info-key">历史连接数：</span>
+            <span class="info-key">{{ $t('lang.redisInfo.connectionsReceived') }}</span>
             <span class="info-value">{{ info.Stats.total_connections_received }}</span>
           </div>
           <div class="info-line">
-            <span class="info-key">历史命令数：</span>
+            <span class="info-key">{{ $t('lang.redisInfo.commandsProcessed') }}</span>
             <span class="info-value">{{ info.Stats.total_commands_processed }}</span>
           </div>
         </el-card>
@@ -62,7 +62,7 @@
     <el-row>
       <el-card>
         <div slot="header">
-          <span slot="label"><i class="el-icon-date"></i> 键值统计</span>
+          <span slot="label"><i class="el-icon-date"></i> {{ $t('lang.redisInfo.keyValue') }}</span>
         </div>
         <el-table
           :data="tableData"
@@ -92,7 +92,7 @@
     <el-row>
       <el-card>
         <div slot="header">
-          <span slot="label"><i class="el-icon-date"></i> Redis信息全集</span>
+          <span slot="label"><i class="el-icon-date"></i> {{ $t('lang.redisInfo.completeInfo') }}</span>
         </div>
         <el-table
           :data="allInfo"
