@@ -7,12 +7,10 @@
                      name="删除连接" :disabled="activeIndex === -1"></header-button>
       <header-button class="header-button" icon="el-icon-setting" @click="openConnectionDialog"
                      name="连接属性" :disabled="activeIndex === -1"></header-button>
-      <header-button class="header-button" icon="el-icon-document-delete" @click="openConnectionDialog"
-                     name="清理无效连接"></header-button>
-      <header-button class="header-button" icon="el-icon-document-delete" @click="openConnectionDialog"
-                     name="打开终端"></header-button>
-      <header-button class="header-button" icon="el-icon-refresh" @click="openConnectionDialog"
-                     name="刷新"></header-button>
+      <header-button class="header-button" icon="el-icon-document-delete" @click="openTerminalTab"
+                     name="打开终端" :disabled="activeIndex === -1"></header-button>
+      <header-button class="header-button" icon="el-icon-refresh" @click="refreshKeys"
+                     name="刷新" :disabled="activeIndex === -1"></header-button>
       <header-button class="header-button" icon="el-icon-chat-round" @click="openConnectionDialog"
                      name="切换语言"></header-button>
     </el-header>
@@ -50,6 +48,7 @@
             <redis-info :info="item.content" v-if="item.type === 0"></redis-info>
             <redis-value-info :info="item.content" v-if="item.type === 1" @refresh-data="refreshRedisValue"
                               @delete-key="handleDeleteKey"/>
+            <redis-terminal :info="item.content" v-if="item.type===2"></redis-terminal>
           </el-tab-pane>
         </el-tabs>
       </el-main>
@@ -94,10 +93,11 @@ import {
 import RedisInfo from '@/components/RedisInfo';
 import RedisValueInfo from '@/components/RedisValueInfo';
 import HeaderButton from '@/components/HeaderButton';
+import RedisTerminal from '@/components/RedisTerminal';
 
 export default {
   name: 'Home',
-  components: {HeaderButton, RedisValueInfo, RedisInfo},
+  components: {RedisTerminal, HeaderButton, RedisValueInfo, RedisInfo},
   data() {
     return {
       form: {
@@ -128,6 +128,55 @@ export default {
     openConnectionDialog() {
       this.form = {}
       this.dialogVisible = true
+    },
+    openTerminalTab() {
+      // 判断是否已经存在该redis终端的选项卡
+      let existsFlag = false
+      const prefix = 'terminal_'
+      for (const tab of this.editableTabs) {
+        if (tab.name === prefix + this.activeKey) {
+          this.activeName = tab.name
+          existsFlag = true
+          console.log('exists')
+          break
+        }
+      }
+      if (!existsFlag) {
+        const address = this.addresses[this.activeIndex]
+        const form = {
+          host: address.host,
+          port: address.port,
+          username: address.username,
+          password: address.password,
+          separator: address.separator
+        }
+        testConnection(form).then(
+          res => {
+            const message = res.data.message
+            if (res.data.code === 200) {
+              const newTabName = prefix + this.activeKey
+              const host = address.host
+              const port = address.port
+              const key = address.key
+              const database = address.activeDatabase
+              const info = {host, port, key, database}
+              this.editableTabs.push({
+                title: host + '@' + port,
+                name: newTabName,
+                type: 2,
+                content: info
+              })
+              this.activeName = newTabName
+            } else {
+              this.$message({
+                showClose: true,
+                message: message,
+                type: 'error'
+              })
+            }
+          }
+        )
+      }
     },
     addConnection() {
       this.$refs.form.validate(valid => {
@@ -306,6 +355,7 @@ export default {
                 value: parseInt(key.substring(2))
               })
             })
+            this.$set(this.addresses[index], 'activeDatabase', 0)
             // 获取db0的所有keys
             getKeys(this.addresses[index].key, 0).then(
               response => {
@@ -319,6 +369,17 @@ export default {
           }
         });
       }
+    },
+    refreshKeys() {
+      const index = this.activeIndex
+      // 获取db0的所有keys
+      getKeys(this.addresses[index].key, this.addresses[index].activeDatabase).then(
+        response => {
+          if (response.data.code === 200) {
+            this.$set(this.addresses[index], 'keys', response.data.data)
+          }
+        }
+      )
     },
     handleCloseSubMenu(index) {
       this.activeKey = ''
@@ -347,6 +408,7 @@ export default {
     handleDatabaseChange(val) {
       if (this.activeKey) {
         const index = this.activeIndex
+        this.$set(this.addresses[index], 'activeDatabase', val)
         // 获取db0的所有keys
         getKeys(this.addresses[index].key, val).then(
           response => {
@@ -355,6 +417,14 @@ export default {
             }
           }
         )
+        // 更新终端的database
+        const prefix = 'terminal_'
+        for (const tab of this.editableTabs) {
+          if (tab.name === prefix + this.activeKey) {
+            this.$set(tab.content, 'database', val)
+            break
+          }
+        }
       }
     },
     handleDeleteKey(info) {
@@ -420,6 +490,11 @@ export default {
 
 .el-submenu.is-opened /deep/ .el-submenu__title {
   background: #edf5ff;
+}
+
+/deep/ .el-menu-item, /deep/ .el-submenu__title {
+  height: 40px !important;
+  line-height: 40px !important;
 }
 
 </style>

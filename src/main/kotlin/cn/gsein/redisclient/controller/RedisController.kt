@@ -82,6 +82,7 @@ class RedisController {
             map["key"] = it.key
             map["separator"] = it.value.separator.toString()
             map["username"] = it.value.username.toString()
+            map["password"] = it.value.password.toString()
             map["timestamp"] = it.value.createTimestamp.toString()
             map
         }
@@ -254,6 +255,11 @@ class RedisController {
     @PostMapping("/delete-zset-value")
     fun deleteZsetValue(key: String, database: Int, redisKey: String, redisValue: String): AjaxResult<Any?> {
         return buildAjaxResult(redisService.deleteZsetValue(key, database, redisKey, redisValue))
+    }
+
+    @PostMapping("/send-command")
+    fun sendCommand(key: String, database: Int, command: String): AjaxResult<Any?> {
+        return AjaxResult.ok("123")
     }
 
 

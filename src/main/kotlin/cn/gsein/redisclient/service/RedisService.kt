@@ -339,20 +339,30 @@ class RedisService {
         return true
     }
 
-    fun testConnection(connectionData: ConnectionData): Boolean {
+    fun testConnection(connectionData: ConnectionData, database: Int = 0): Boolean {
         val builder = RedisURI.builder()
         val uri = with(builder) {
             withHost(connectionData.host)
             connectionData.port?.let { withPort(it) }
             withPassword(connectionData.password?.toCharArray())
-            withDatabase(0)
+            withDatabase(database)
             build()
         }
 
         val client = RedisClient.create(uri)
         val connect = client.connect()
-        val pingResult = connect.sync().ping()
-        return "PONG" == pingResult
+
+        // 使用use函数自动关闭流
+        connect.use {
+            val pingResult = it.sync().ping()
+            return "PONG" == pingResult
+        }
+
+    }
+
+    fun sendCommand(key: String, database: Int, command: String): String {
+        val connection = getConnection(key, database)
+        return ""
     }
 
     private fun getConnection(uuid: String, database: Int): StatefulRedisConnection<String, String> {

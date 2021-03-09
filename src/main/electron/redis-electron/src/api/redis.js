@@ -35,6 +35,12 @@ export const getKeys = (key, database) => axios({
   method: 'get'
 })
 
+export const sendCommand = (key, database) => axios({
+  url: baseUrl + 'redis/send-command',
+  params: {key, database},
+  method: 'post'
+})
+
 export const getValueByKey = (key, database, redisKey) => axios({
   url: baseUrl + 'redis/get-value?key=' + key + '&database=' + database + '&redisKey=' + redisKey,
   method: 'get'
