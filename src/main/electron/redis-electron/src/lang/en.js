@@ -21,7 +21,19 @@ export const lang = {
     separator: 'Separator',
     cancel: 'Cancel',
     confirm: 'Confirm',
-    testConnection: 'Test Connection'
+    testConnection: 'Test Connection',
+    save: 'Save',
+    operation: 'Operation',
+    edit: 'Edit',
+    delete: 'Delete',
+    hint: 'Hint',
+    updateHint: 'Confirm to change key from {originalKey} to {newKey}?',
+    updateFailure: 'Fail to update',
+    updateTtlHint: 'Set TTL<=0 will delete this key, please confirm',
+    deleteHint: 'Confirm to delete?',
+    deleteKeyHint: 'Confirm to delete {key}？',
+    newLine: 'Add New Line',
+    editLine: 'Edit Line'
   },
   about: {
     name: 'Gsein Redis Client',

@@ -21,7 +21,19 @@ export const lang = {
     separator: '分隔符',
     cancel: '取消',
     confirm: '确定',
-    testConnection: '测试连接'
+    testConnection: '测试连接',
+    save: '保存',
+    operation: '操作',
+    edit: '编辑',
+    delete: '删除',
+    hint: '提示',
+    updateHint: '是否将key由{originalKey}修改为{newKey}?',
+    updateFailure: '修改失败',
+    updateTtlHint: '设置TTL<=0将删除该key，是否确认？',
+    deleteHint: '是否确认删除这条数据?',
+    deleteKeyHint: '是否确认删除{key}？',
+    newLine: '添加新行',
+    editLine: '修改行'
   },
   about: {
     name: '吉森Redis客户端',

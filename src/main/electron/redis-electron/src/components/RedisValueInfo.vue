@@ -20,7 +20,7 @@
       <div v-if="info.type==='string'">
         <el-input type="textarea" :autosize="{ minRows: 3 }" v-model="info.value">
         </el-input>
-        <el-button type="primary" @click="updateStringValue">保存</el-button>
+        <el-button type="primary" @click="updateStringValue">{{ $t('lang.dialog.save') }}</el-button>
       </div>
       <div v-if="info.type==='list'">
         <div class="table-title">
@@ -38,11 +38,16 @@
           </el-table-column>
           <el-table-column
             fixed="right"
-            label="操作"
+            :label="$t('lang.dialog.operation')"
             width="200">
             <template slot-scope="scope">
-              <el-button @click="showEditDialog(scope.row, scope.$index)" type="text" size="small">编辑</el-button>
-              <el-button @click="deleteListValue(scope.row)" type="text" size="small">删除</el-button>
+              <el-button @click="showEditDialog(scope.row, scope.$index)" type="text" size="small">
+                {{ $t('lang.dialog.edit') }}
+              </el-button>
+              <el-button @click="deleteListValue(scope.row)" type="text" size="small">{{
+                  $t('lang.dialog.delete')
+                }}
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -63,11 +68,16 @@
           </el-table-column>
           <el-table-column
             fixed="right"
-            label="操作"
+            :label="$t('lang.dialog.operation')"
             width="200">
             <template slot-scope="scope">
-              <el-button @click="showEditDialog(scope.row, scope.$index)" type="text" size="small">编辑</el-button>
-              <el-button @click="deleteSetValue(scope.row)" type="text" size="small">删除</el-button>
+              <el-button @click="showEditDialog(scope.row, scope.$index)" type="text" size="small">
+                {{ $t('lang.dialog.edit') }}
+              </el-button>
+              <el-button @click="deleteSetValue(scope.row)" type="text" size="small">{{
+                  $t('lang.dialog.delete')
+                }}
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -92,11 +102,16 @@
           </el-table-column>
           <el-table-column
             fixed="right"
-            label="操作"
+            :label="$t('lang.dialog.operation')"
             width="200">
             <template slot-scope="scope">
-              <el-button @click="showEditDialog(scope.row, scope.$index)" type="text" size="small">编辑</el-button>
-              <el-button @click="deleteHashValue(scope.row)" type="text" size="small">删除</el-button>
+              <el-button @click="showEditDialog(scope.row, scope.$index)" type="text" size="small">
+                {{ $t('lang.dialog.edit') }}
+              </el-button>
+              <el-button @click="deleteHashValue(scope.row)" type="text" size="small">{{
+                  $t('lang.dialog.delete')
+                }}
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -121,28 +136,41 @@
           </el-table-column>
           <el-table-column
             fixed="right"
-            label="操作"
+            :label="$t('lang.dialog.operation')"
             width="200">
             <template slot-scope="scope">
-              <el-button @click="showEditDialog(scope.row, scope.$index)" type="text" size="small">编辑</el-button>
-              <el-button @click="deleteZsetValue(scope.row)" type="text" size="small">删除</el-button>
+              <el-button @click="showEditDialog(scope.row, scope.$index)" type="text" size="small">
+                {{ $t('lang.dialog.edit') }}
+              </el-button>
+              <el-button @click="deleteZsetValue(scope.row)" type="text" size="small">{{
+                  $t('lang.dialog.delete')
+                }}
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
       </div>
     </div>
-    <el-dialog :title="dialogType==='add' ? '添加新行': '修改行'" :visible.sync="dialogVisible">
+    <el-dialog :title="dialogType==='add' ? $t('lang.dialog.newLine'): $t('lang.dialog.editLine')"
+               :visible.sync="dialogVisible">
       <el-form ref="form" :model="form" label-width="80px" v-if="info.type==='list' || info.type === 'set'">
         <el-input v-show="false" :value="form.index"></el-input>
         <el-form-item label="Value">
           <el-input v-model="form.value" placeholder="" type="textarea" :autosize="{ minRows: 3 }"></el-input>
         </el-form-item>
-        <el-button @click="closeDialog">取消</el-button>
-        <el-button @click="addListValue" type="primary" v-if="dialogType==='add' && info.type==='list'">确定</el-button>
-        <el-button @click="addSetValue" type="primary" v-if="dialogType==='add' && info.type==='set'">确定</el-button>
-        <el-button @click="updateListValue" type="primary" v-if="dialogType==='edit' && info.type==='list'">确定
+        <el-button @click="closeDialog">{{ $t('lang.dialog.cancel') }}</el-button>
+        <el-button @click="addListValue" type="primary" v-if="dialogType==='add' && info.type==='list'">
+          {{ $t('lang.dialog.confirm') }}
         </el-button>
-        <el-button @click="updateSetValue" type="primary" v-if="dialogType==='edit' && info.type==='set'">确定</el-button>
+        <el-button @click="addSetValue" type="primary" v-if="dialogType==='add' && info.type==='set'">
+          {{ $t('lang.dialog.confirm') }}
+        </el-button>
+        <el-button @click="updateListValue" type="primary" v-if="dialogType==='edit' && info.type==='list'">
+          {{ $t('lang.dialog.confirm') }}
+        </el-button>
+        <el-button @click="updateSetValue" type="primary" v-if="dialogType==='edit' && info.type==='set'">
+          {{ $t('lang.dialog.confirm') }}
+        </el-button>
       </el-form>
       <el-form ref="form" :model="form" label-width="80px" v-if="info.type==='hash' || info.type === 'zset'">
         <el-input v-show="false" :value="form.index"></el-input>
@@ -156,12 +184,18 @@
           <el-input v-model="form.value" placeholder="" type="textarea" :autosize="{ minRows: 3 }"
                     :disabled="info.type==='zset' && dialogType==='edit'"></el-input>
         </el-form-item>
-        <el-button @click="closeDialog">取消</el-button>
-        <el-button @click="addHashValue" type="primary" v-if="dialogType==='add' && info.type==='hash'">确定</el-button>
-        <el-button @click="addZsetValue" type="primary" v-if="dialogType==='add' && info.type==='zset'">确定</el-button>
-        <el-button @click="updateHashValue" type="primary" v-if="dialogType==='edit' && info.type==='hash'">确定
+        <el-button @click="closeDialog">{{ $t('lang.dialog.cancel') }}</el-button>
+        <el-button @click="addHashValue" type="primary" v-if="dialogType==='add' && info.type==='hash'">
+          {{ $t('lang.dialog.confirm') }}
         </el-button>
-        <el-button @click="updateZsetValue" type="primary" v-if="dialogType==='edit' && info.type==='zset'">确定
+        <el-button @click="addZsetValue" type="primary" v-if="dialogType==='add' && info.type==='zset'">
+          {{ $t('lang.dialog.confirm') }}
+        </el-button>
+        <el-button @click="updateHashValue" type="primary" v-if="dialogType==='edit' && info.type==='hash'">
+          {{ $t('lang.dialog.confirm') }}
+        </el-button>
+        <el-button @click="updateZsetValue" type="primary" v-if="dialogType==='edit' && info.type==='zset'">
+          {{ $t('lang.dialog.confirm') }}
         </el-button>
       </el-form>
     </el-dialog>
@@ -224,10 +258,19 @@ export default {
       })
     },
     updateKey() {
+      const updateHint = this.$t('lang.dialog.updateHint', {
+        originalKey: this.originalKey,
+        newKey: this.info.key
+      }).toString()
+      const hint = this.$t('lang.dialog.hint').toString()
+      const confirm = this.$t('lang.dialog.confirm').toString()
+      const cancel = this.$t('lang.dialog.cancel').toString()
+      const updateFailure = this.$t('lang.dialog.updateFailure').toString()
+
       if (this.info.key !== this.originalKey) {
-        this.$confirm(`是否将key由${this.originalKey}修改为${this.info.key}?`, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+        this.$confirm(updateHint, hint, {
+          confirmButtonText: confirm,
+          cancelButtonText: cancel,
           type: 'warning'
         }).then(() => {
           updateKey(this.info.connectionKey, this.info.database, this.originalKey, this.info.key).then(res => {
@@ -245,21 +288,34 @@ export default {
         }).catch(() => {
           this.$message({
             type: 'info',
-            message: '修改失败'
+            message: updateFailure
           });
           this.info.key = this.originalKey
         });
       }
     },
     updateTtl() {
+      const updateTtlHint = this.$t('lang.dialog.updateTtlHint', {
+        originalKey: this.originalKey,
+        newKey: this.info.key
+      }).toString()
+      const hint = this.$t('lang.dialog.hint').toString()
+      const confirm = this.$t('lang.dialog.confirm').toString()
+      const cancel = this.$t('lang.dialog.cancel').toString()
+      const updateFailure = this.$t('lang.dialog.updateFailure').toString()
       if (this.info.ttl <= 0) {
-        this.$confirm('设置TTL<=0将删除该key，是否确认？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+        this.$confirm(updateTtlHint, hint, {
+          confirmButtonText: confirm,
+          cancelButtonText: cancel,
           type: 'warning'
         }).then(() => {
           this.deleteKey()
-        })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: updateFailure
+          });
+        });
       } else {
         updateTtl(this.info.connectionKey, this.info.database, this.originalKey, this.info.ttl).then(res => {
           if (res.data.code === 200) {
@@ -332,9 +388,13 @@ export default {
       this.$emit('refresh-data', this.info)
     },
     deleteListValue(row) {
-      this.$confirm('是否确认删除这条数据？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      const deleteHint = this.$t('lang.dialog.deleteHint').toString()
+      const hint = this.$t('lang.dialog.hint').toString()
+      const confirm = this.$t('lang.dialog.confirm').toString()
+      const cancel = this.$t('lang.dialog.cancel').toString()
+      this.$confirm(deleteHint, hint, {
+        confirmButtonText: confirm,
+        cancelButtonText: cancel,
         type: 'warning'
       }).then(() => {
         deleteListValue(this.info.connectionKey, this.info.database, this.originalKey, row.value)
@@ -342,9 +402,13 @@ export default {
       })
     },
     deleteSetValue(row) {
-      this.$confirm('是否确认删除这条数据？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      const deleteHint = this.$t('lang.dialog.deleteHint').toString()
+      const hint = this.$t('lang.dialog.hint').toString()
+      const confirm = this.$t('lang.dialog.confirm').toString()
+      const cancel = this.$t('lang.dialog.cancel').toString()
+      this.$confirm(deleteHint, hint, {
+        confirmButtonText: confirm,
+        cancelButtonText: cancel,
         type: 'warning'
       }).then(() => {
         deleteSetValue(this.info.connectionKey, this.info.database, this.originalKey, row.value)
@@ -352,9 +416,13 @@ export default {
       })
     },
     deleteHashValue(row) {
-      this.$confirm('是否确认删除这条数据？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      const deleteHint = this.$t('lang.dialog.deleteHint').toString()
+      const hint = this.$t('lang.dialog.hint').toString()
+      const confirm = this.$t('lang.dialog.confirm').toString()
+      const cancel = this.$t('lang.dialog.cancel').toString()
+      this.$confirm(deleteHint, hint, {
+        confirmButtonText: confirm,
+        cancelButtonText: cancel,
         type: 'warning'
       }).then(() => {
         deleteHashValue(this.info.connectionKey, this.info.database, this.originalKey, row.key)
@@ -362,9 +430,13 @@ export default {
       })
     },
     deleteZsetValue(row) {
-      this.$confirm('是否确认删除这条数据？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      const deleteHint = this.$t('lang.dialog.deleteHint').toString()
+      const hint = this.$t('lang.dialog.hint').toString()
+      const confirm = this.$t('lang.dialog.confirm').toString()
+      const cancel = this.$t('lang.dialog.cancel').toString()
+      this.$confirm(deleteHint, hint, {
+        confirmButtonText: confirm,
+        cancelButtonText: cancel,
         type: 'warning'
       }).then(() => {
         deleteZsetValue(this.info.connectionKey, this.info.database, this.originalKey, row.value)
@@ -414,9 +486,15 @@ export default {
       })
     },
     deleteKey() {
-      this.$confirm(`是否确认删除${this.originalKey}？`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      const deleteKeyHint = this.$t('lang.dialog.deleteKeyHint', {
+        key: this.originalKey
+      }).toString()
+      const hint = this.$t('lang.dialog.hint').toString()
+      const confirm = this.$t('lang.dialog.confirm').toString()
+      const cancel = this.$t('lang.dialog.cancel').toString()
+      this.$confirm(deleteKeyHint, hint, {
+        confirmButtonText: confirm,
+        cancelButtonText: cancel,
         type: 'warning'
       }).then(() => {
         this.doDeleteKey()
