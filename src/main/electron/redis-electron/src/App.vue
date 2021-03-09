@@ -2,10 +2,10 @@
   <div id="app">
 <!--    <home></home>-->
     <div id="nav">
-      <router-link to="/">Connection</router-link> |
-      <router-link to="/cheatsheet">CheatSheet</router-link> |
-      <router-link to="/versions">Versions</router-link> |
-      <router-link to="/about">About</router-link>
+      <router-link to="/">{{ $t('lang.connection') }}</router-link> |
+      <router-link to="/cheatsheet">{{ $t('lang.cheatsheet') }}</router-link> |
+      <router-link to="/versions">{{ $t('lang.versions') }}</router-link> |
+      <router-link to="/about">{{ $t('lang.about') }}</router-link>
     </div>
     <router-view/>
   </div>

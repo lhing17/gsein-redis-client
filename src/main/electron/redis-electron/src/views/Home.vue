@@ -5,14 +5,20 @@
                      name="新建连接"></header-button>
       <header-button class="header-button" icon="el-icon-delete" @click="removeConnection"
                      name="删除连接" :disabled="activeIndex === -1"></header-button>
-      <header-button class="header-button" icon="el-icon-setting" @click="openConnectionDialog"
+      <header-button class="header-button" icon="el-icon-setting" @click="openEditDialog"
                      name="连接属性" :disabled="activeIndex === -1"></header-button>
       <header-button class="header-button" icon="el-icon-document-delete" @click="openTerminalTab"
                      name="打开终端" :disabled="activeIndex === -1"></header-button>
       <header-button class="header-button" icon="el-icon-refresh" @click="refreshKeys"
                      name="刷新" :disabled="activeIndex === -1"></header-button>
-      <header-button class="header-button" icon="el-icon-chat-round" @click="openConnectionDialog"
-                     name="切换语言"></header-button>
+      <el-dropdown trigger="click" class="lang" @command="onChangeLang">
+        <header-button class="header-button" icon="el-icon-chat-round"
+                       name="切换语言"></header-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="zh">简体中文</el-dropdown-item>
+          <el-dropdown-item command="en">English</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
     </el-header>
     <el-container>
       <el-aside width="300px">
@@ -53,7 +59,8 @@
         </el-tabs>
       </el-main>
     </el-container>
-    <el-dialog title="新建连接" :visible.sync="dialogVisible" :before-close="handleClose">
+    <el-dialog :title="this.operationType==='edit' ? '连接属性' :'新建连接'" :visible.sync="dialogVisible"
+               :before-close="handleClose">
       <el-form ref="form" :model="form" label-width="80px" :rules="rules">
         <el-form-item label="Host" prop="host">
           <el-input v-model="form.host" placeholder="127.0.0.1"></el-input>
@@ -71,7 +78,8 @@
           <el-input v-model="form.separator"></el-input>
         </el-form-item>
         <el-button @click="closeDialog">取消</el-button>
-        <el-button @click="addConnection" type="primary">确定</el-button>
+        <el-button @click="addConnection" type="primary" v-if="this.operationType==='add'">确定</el-button>
+        <el-button @click="editConnection" type="primary" v-if="this.operationType==='edit'">确定</el-button>
         <el-button @click="testConnection" type="primary">测试连接</el-button>
       </el-form>
     </el-dialog>
@@ -82,6 +90,7 @@
 // @ is an alias to /src
 
 import {
+  editConnection,
   getInfo,
   getKeys,
   getValueByKey,
@@ -115,10 +124,15 @@ export default {
           {type: 'integer', min: 1, max: 65535, trigger: 'blur', message: '端口号为1-65535之间的整数'}
         ]
       },
-      opened: []
+      opened: [],
+      operationType: 'add'
     }
   },
   methods: {
+    onChangeLang(e) {
+      console.log(e)
+      this.$i18n.locale = e
+    },
     handleClose(done) {
       done()
     },
@@ -128,6 +142,19 @@ export default {
     openConnectionDialog() {
       this.form = {}
       this.dialogVisible = true
+      this.operationType = 'add'
+    },
+    openEditDialog() {
+      this.dialogVisible = true
+      this.operationType = 'edit'
+      const address = this.addresses[this.activeIndex]
+      this.form = {
+        host: address.host,
+        port: address.port,
+        username: address.username,
+        password: address.password,
+        separator: address.separator
+      }
     },
     openTerminalTab() {
       // 判断是否已经存在该redis终端的选项卡
@@ -182,6 +209,34 @@ export default {
       this.$refs.form.validate(valid => {
         if (valid) {
           newConnection(this.form).then(res => {
+            console.log(res.data)
+            const message = res.data.message
+            this.dialogVisible = false
+            if (res.data.code === 200) {
+              this.updateAddresses()
+              this.$message({
+                showClose: true,
+                message: message,
+                type: 'success'
+              })
+            } else {
+              this.$message({
+                showClose: true,
+                message: message,
+                type: 'error'
+              })
+            }
+          })
+        } else {
+          this.dialogVisible = false
+          return false
+        }
+      })
+    },
+    editConnection() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          editConnection(this.form).then(res => {
             console.log(res.data)
             const message = res.data.message
             this.dialogVisible = false
@@ -495,6 +550,10 @@ export default {
 /deep/ .el-menu-item, /deep/ .el-submenu__title {
   height: 40px !important;
   line-height: 40px !important;
+}
+
+.lang {
+  float: left;
 }
 
 </style>
