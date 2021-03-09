@@ -1,13 +1,13 @@
 <template>
   <div class="about">
-    <h1>Gsein Redis Client v1.0</h1>
-    <p>Powered by G. Seinfeld</p>
-    <p>copyright © 2021 G. Seinfeld</p>
+    <h1>{{ $t('lang.about.name') }}</h1>
+    <p>{{ $t('lang.about.power') }}</p>
+    <p>{{ $t('lang.about.copyright') }}</p>
     <div>
-      <el-button round>检查更新</el-button>
-      <el-button round>意见反馈</el-button>
-      <el-button round>使用说明</el-button>
-      <el-button round>项目地址</el-button>
+      <el-button round>{{ $t('lang.about.checkUpdate') }}</el-button>
+      <el-button round>{{ $t('lang.about.feedback') }}</el-button>
+      <el-button round>{{ $t('lang.about.manual') }}</el-button>
+      <el-button round>{{ $t('lang.about.projectHome') }}</el-button>
     </div>
   </div>
 </template>

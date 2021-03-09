@@ -1,8 +1,8 @@
 <template>
   <div class="versions">
-    <h1>版本更新日志</h1>
-    <h3>2021年3月- v1.0</h3>
-    <p>初版发布</p>
+    <h1>{{ $t('lang.versions.changelog') }}</h1>
+    <h3>{{ $t('lang.versions.v1_0.title') }}</h3>
+    <p>{{ $t('lang.versions.v1_0.content') }}</p>
   </div>
 </template>
 

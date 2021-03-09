@@ -2,18 +2,18 @@
   <el-container>
     <el-header>
       <header-button class="header-button" icon="el-icon-plus" @click="openConnectionDialog"
-                     name="新建连接"></header-button>
+                     :name="$t('lang.header.newConnection')"></header-button>
       <header-button class="header-button" icon="el-icon-delete" @click="removeConnection"
-                     name="删除连接" :disabled="activeIndex === -1"></header-button>
+                     :name="$t('lang.header.removeConnection')" :disabled="activeIndex === -1"></header-button>
       <header-button class="header-button" icon="el-icon-setting" @click="openEditDialog"
-                     name="连接属性" :disabled="activeIndex === -1"></header-button>
+                     :name="$t('lang.header.connectionProperties')" :disabled="activeIndex === -1"></header-button>
       <header-button class="header-button" icon="el-icon-document-delete" @click="openTerminalTab"
-                     name="打开终端" :disabled="activeIndex === -1"></header-button>
+                     :name="$t('lang.header.openTerminal')" :disabled="activeIndex === -1"></header-button>
       <header-button class="header-button" icon="el-icon-refresh" @click="refreshKeys"
-                     name="刷新" :disabled="activeIndex === -1"></header-button>
+                     :name="$t('lang.header.refresh')" :disabled="activeIndex === -1"></header-button>
       <el-dropdown trigger="click" class="lang" @command="onChangeLang">
         <header-button class="header-button" icon="el-icon-chat-round"
-                       name="切换语言"></header-button>
+                       :name="$t('lang.header.switchLanguage')"></header-button>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="zh">简体中文</el-dropdown-item>
           <el-dropdown-item command="en">English</el-dropdown-item>
@@ -59,28 +59,30 @@
         </el-tabs>
       </el-main>
     </el-container>
-    <el-dialog :title="this.operationType==='edit' ? '连接属性' :'新建连接'" :visible.sync="dialogVisible"
-               :before-close="handleClose">
+    <el-dialog
+      :title="this.operationType==='edit' ? $t('lang.header.connectionProperties') :$t('lang.header.newConnection')"
+      :visible.sync="dialogVisible"
+      :before-close="handleClose">
       <el-form ref="form" :model="form" label-width="80px" :rules="rules">
-        <el-form-item label="Host" prop="host">
+        <el-form-item :label="$t('lang.dialog.host')" prop="host">
           <el-input v-model="form.host" placeholder="127.0.0.1"></el-input>
         </el-form-item>
-        <el-form-item label="Port" prop="port">
+        <el-form-item :label="$t('lang.dialog.port')" prop="port">
           <el-input v-model.number="form.port" placeholder="6379"></el-input>
         </el-form-item>
-        <el-form-item label="Auth" prop="password">
+        <el-form-item :label="$t('lang.dialog.auth')" prop="password">
           <el-input v-model="form.password"></el-input>
         </el-form-item>
-        <el-form-item label="Name" prop="username">
+        <el-form-item :label="$t('lang.dialog.name')" prop="username">
           <el-input v-model="form.username"></el-input>
         </el-form-item>
-        <el-form-item label="Separator" prop="separator">
+        <el-form-item :label="$t('lang.dialog.separator')" prop="separator">
           <el-input v-model="form.separator"></el-input>
         </el-form-item>
-        <el-button @click="closeDialog">取消</el-button>
-        <el-button @click="addConnection" type="primary" v-if="this.operationType==='add'">确定</el-button>
-        <el-button @click="editConnection" type="primary" v-if="this.operationType==='edit'">确定</el-button>
-        <el-button @click="testConnection" type="primary">测试连接</el-button>
+        <el-button @click="closeDialog">{{ $t('lang.dialog.cancel') }}</el-button>
+        <el-button @click="addConnection" type="primary" v-if="this.operationType==='add'">{{ $t('lang.dialog.confirm') }}</el-button>
+        <el-button @click="editConnection" type="primary" v-if="this.operationType==='edit'">{{ $t('lang.dialog.confirm') }}</el-button>
+        <el-button @click="testConnection" type="primary">{{ $t('lang.dialog.testConnection') }}</el-button>
       </el-form>
     </el-dialog>
   </el-container>
@@ -140,7 +142,7 @@ export default {
       this.dialogVisible = false
     },
     openConnectionDialog() {
-      this.form = {}
+      this.form = {separator: ':'}
       this.dialogVisible = true
       this.operationType = 'add'
     },

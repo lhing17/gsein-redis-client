@@ -1,11 +1,14 @@
 <template>
   <div id="app">
-<!--    <home></home>-->
+    <!--    <home></home>-->
     <div id="nav">
-      <router-link to="/">{{ $t('lang.connection') }}</router-link> |
-      <router-link to="/cheatsheet">{{ $t('lang.cheatsheet') }}</router-link> |
-      <router-link to="/versions">{{ $t('lang.versions') }}</router-link> |
-      <router-link to="/about">{{ $t('lang.about') }}</router-link>
+      <router-link to="/">{{ $t('lang.nav.connection') }}</router-link>
+      |
+      <router-link to="/cheatsheet">{{ $t('lang.nav.cheatsheet') }}</router-link>
+      |
+      <router-link to="/versions">{{ $t('lang.nav.versions') }}</router-link>
+      |
+      <router-link to="/about">{{ $t('lang.nav.about') }}</router-link>
     </div>
     <router-view/>
   </div>
@@ -18,11 +21,11 @@
   -moz-osx-font-smoothing grayscale
   text-align center
   color #2c3e50
+
 #nav
   background #f3f2f1
   padding 10px 0
 </style>
 <script>
-export default {
-}
+export default {}
 </script>
