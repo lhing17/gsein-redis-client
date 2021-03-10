@@ -73,7 +73,7 @@ export default {
     handleSearch() {
       let data = this.fullData
       if (this.name) {
-        data = data.filter(d => d.commandName.indexOf(this.name) !== -1)
+        data = data.filter(d => d.commandName.indexOf(this.name.toUpperCase()) !== -1)
       }
       if (this.type && this.type !== 'ALL') {
         data = data.filter(d => d.dataGroup === this.type)
