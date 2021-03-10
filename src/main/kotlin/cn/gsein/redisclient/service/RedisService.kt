@@ -325,6 +325,20 @@ class RedisService {
         localStorageService.synchronize(redisAddressMap)
     }
 
+    fun editConnection(connectionData: ConnectionData, key: String) {
+        connectionData.createTimestamp = redisAddressMap[key]?.createTimestamp
+        redisAddressMap[key] = connectionData
+
+        // 创建连接实体的缓存映射
+        if (!connectionMap.containsKey(key)) {
+            connectionMap[key] = ConcurrentHashMap()
+        }
+
+        // 将连接信息同步到本地文件，以便下次使用
+        localStorageService.synchronize(redisAddressMap)
+
+    }
+
     /**
      * 移除连接
      */
@@ -392,5 +406,6 @@ class RedisService {
         } while (redisAddressMap.containsKey(uuid))
         return uuid
     }
+
 
 }

@@ -4,7 +4,8 @@ A new redis client GUI tool.
 
 ## Techs
 
-Electron + Vue + Spring Boot + Lettuce
+- GUI: Electron + Vue 
+- Function Implementation: Spring Boot + Lettuce (Kotlin)
 
 ## Build Steps
 

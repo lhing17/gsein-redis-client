@@ -64,6 +64,7 @@
       :visible.sync="dialogVisible"
       :before-close="handleClose">
       <el-form ref="form" :model="form" label-width="80px" :rules="rules">
+        <el-input v-show="false" v-model="form.key" v-if="this.operationType==='edit'"></el-input>
         <el-form-item :label="$t('lang.dialog.host')" prop="host">
           <el-input v-model="form.host" placeholder="127.0.0.1"></el-input>
         </el-form-item>
@@ -80,8 +81,13 @@
           <el-input v-model="form.separator"></el-input>
         </el-form-item>
         <el-button @click="closeDialog">{{ $t('lang.dialog.cancel') }}</el-button>
-        <el-button @click="addConnection" type="primary" v-if="this.operationType==='add'">{{ $t('lang.dialog.confirm') }}</el-button>
-        <el-button @click="editConnection" type="primary" v-if="this.operationType==='edit'">{{ $t('lang.dialog.confirm') }}</el-button>
+        <el-button @click="addConnection" type="primary" v-if="this.operationType==='add'">{{
+            $t('lang.dialog.confirm')
+          }}
+        </el-button>
+        <el-button @click="editConnection" type="primary" v-if="this.operationType==='edit'">
+          {{ $t('lang.dialog.confirm') }}
+        </el-button>
         <el-button @click="testConnection" type="primary">{{ $t('lang.dialog.testConnection') }}</el-button>
       </el-form>
     </el-dialog>
@@ -152,10 +158,11 @@ export default {
       const address = this.addresses[this.activeIndex]
       this.form = {
         host: address.host,
-        port: address.port,
+        port: parseInt(address.port),
         username: address.username,
         password: address.password,
-        separator: address.separator
+        separator: address.separator,
+        key: address.key
       }
     },
     openTerminalTab() {

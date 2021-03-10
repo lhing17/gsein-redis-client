@@ -10,7 +10,7 @@ data class ConnectionData(
     val password: String?,
     val username: String?,
     val separator: String?,
-    val createTimestamp: Long? = System.currentTimeMillis()
+    var createTimestamp: Long? = System.currentTimeMillis()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

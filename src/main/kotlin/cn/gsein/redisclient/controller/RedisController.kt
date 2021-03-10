@@ -49,6 +49,18 @@ class RedisController {
         return ok()
     }
 
+    @PostMapping("/edit-connection")
+    fun editConnection(connectionData: ConnectionData, key: String): AjaxResult<Any?> {
+        if (connectionData.host == null) {
+            connectionData.host = "127.0.0.1"
+        }
+        if (connectionData.port == null) {
+            connectionData.port = 6379
+        }
+        redisService.editConnection(connectionData, key)
+        return ok()
+    }
+
     @PostMapping("remove-connection")
     fun removeConnection(key: String): AjaxResult<Any?> {
         return buildAjaxResult(redisService.removeConnection(key))
@@ -270,7 +282,7 @@ class RedisController {
         return ok("123")
     }
 
-    private fun <T> ok(data: T? = null) : AjaxResult<T>{
+    private fun <T> ok(data: T? = null): AjaxResult<T> {
         return AjaxResult.ok(data, messageUtil.message("operation.success"))
     }
 
