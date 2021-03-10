@@ -1,45 +1,54 @@
 <template>
-  <div class="about">
-    <el-row class="search-row" :gutter="10">
-      <el-col :span="4" :offset="6">
-        <el-input v-model="name" :placeholder="$t('lang.cheatsheet.name')"></el-input>
-      </el-col>
-      <el-col :span="4">
-        <el-select v-model="type" :placeholder="$t('lang.cheatsheet.type')" style="width: 100%">
-          <el-option
-            v-for="item in options"
-            :key="item"
-            :label="item"
-            :value="item">
-          </el-option>
-        </el-select>
-      </el-col>
-      <el-col :span="2">
-        <el-button @click="handleSearch">{{ $t('lang.cheatsheet.search') }}</el-button>
-      </el-col>
-    </el-row>
-    <el-row :gutter="10">
-      <el-col :span="8" v-for="(item, index) in data" :key="index">
-        <el-card @click.native="handleClickCard(item)" class="command-card">
-          <div class="card-title">
+  <el-container>
+    <el-header>
+      <lang-dropdown></lang-dropdown>
+    </el-header>
+    <el-main>
+      <div class="about">
+        <el-row class="search-row" :gutter="10">
+          <el-col :span="4" :offset="6">
+            <el-input v-model="name" :placeholder="$t('lang.cheatsheet.name')"></el-input>
+          </el-col>
+          <el-col :span="4">
+            <el-select v-model="type" :placeholder="$t('lang.cheatsheet.type')" style="width: 100%">
+              <el-option
+                v-for="item in options"
+                :key="item"
+                :label="item"
+                :value="item">
+              </el-option>
+            </el-select>
+          </el-col>
+          <el-col :span="2">
+            <el-button @click="handleSearch">{{ $t('lang.cheatsheet.search') }}</el-button>
+          </el-col>
+        </el-row>
+        <el-row :gutter="10">
+          <el-col :span="8" v-for="(item, index) in data" :key="index">
+            <el-card @click.native="handleClickCard(item)" class="command-card">
+              <div class="card-title">
             <span class="command-name">{{ item.commandName }}
             <el-tooltip class="item" effect="dark" :content="item.args" placement="top-start">
               <span class="command-args">{{ item.args }}</span>
             </el-tooltip>
             </span>
-          </div>
-          <p class="command-summary">{{ item.summary }}</p>
-        </el-card>
-      </el-col>
-    </el-row>
-  </div>
+              </div>
+              <p class="command-summary">{{ item.summary }}</p>
+            </el-card>
+          </el-col>
+        </el-row>
+      </div>
+    </el-main>
+  </el-container>
 </template>
 <script>
 
 import commands from '@/data/commands';
+import LangDropdown from '@/components/LangDropdown';
 
 export default {
   name: 'CheatSheet',
+  components: {LangDropdown},
   data() {
     return {
       data: commands,
@@ -119,5 +128,9 @@ export default {
 
 .search-row {
   margin: 10px 0;
+}
+
+.el-header {
+  background: #f3f2f1;
 }
 </style>

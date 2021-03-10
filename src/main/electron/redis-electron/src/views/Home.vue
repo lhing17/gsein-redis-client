@@ -11,14 +11,7 @@
                      :name="$t('lang.header.openTerminal')" :disabled="activeIndex === -1"></header-button>
       <header-button class="header-button" icon="el-icon-refresh" @click="refreshKeys"
                      :name="$t('lang.header.refresh')" :disabled="activeIndex === -1"></header-button>
-      <el-dropdown trigger="click" class="lang" @command="onChangeLang">
-        <header-button class="header-button" icon="el-icon-chat-round"
-                       :name="$t('lang.header.switchLanguage')"></header-button>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="zh_CN">简体中文</el-dropdown-item>
-          <el-dropdown-item command="en_US">English</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+      <lang-dropdown></lang-dropdown>
     </el-header>
     <el-container>
       <el-aside width="300px">
@@ -111,10 +104,11 @@ import RedisInfo from '@/components/RedisInfo';
 import RedisValueInfo from '@/components/RedisValueInfo';
 import HeaderButton from '@/components/HeaderButton';
 import RedisTerminal from '@/components/RedisTerminal';
+import LangDropdown from '@/components/LangDropdown';
 
 export default {
   name: 'Home',
-  components: {RedisTerminal, HeaderButton, RedisValueInfo, RedisInfo},
+  components: {LangDropdown, RedisTerminal, HeaderButton, RedisValueInfo, RedisInfo},
   data() {
     return {
       form: {
@@ -137,10 +131,6 @@ export default {
     }
   },
   methods: {
-    onChangeLang(e) {
-      console.log(e)
-      this.$i18n.locale = e
-    },
     handleClose(done) {
       done()
     },
@@ -559,10 +549,6 @@ export default {
 /deep/ .el-menu-item, /deep/ .el-submenu__title {
   height: 40px !important;
   line-height: 40px !important;
-}
-
-.lang {
-  float: left;
 }
 
 </style>
