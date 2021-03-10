@@ -68,7 +68,7 @@ export default {
     handleClickCard(item) {
       console.log(item)
       const url = 'https://redis.io' + item.link
-      window.open(url)
+      require('electron').shell.openExternal(url)
     },
     handleSearch() {
       let data = this.fullData

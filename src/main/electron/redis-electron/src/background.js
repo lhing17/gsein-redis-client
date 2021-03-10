@@ -44,6 +44,17 @@ async function createWindow() {
     }
   })
 
+  win.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures) => {
+    // open window as modal
+    event.preventDefault()
+    Object.assign(options, {
+      parent: win,
+      center: true
+    })
+    event.newGuest = new BrowserWindow(options)
+    event.newGuest.loadURL(url)
+  })
+
   globalShortcut.register('CommandOrControl+Shift+i', function () {
     win.webContents.toggleDevTools()
   })

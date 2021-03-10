@@ -33,7 +33,15 @@ export const lang = {
     deleteHint: 'Confirm to delete?',
     deleteKeyHint: 'Confirm to delete {key}？',
     newLine: 'Add New Line',
-    editLine: 'Edit Line'
+    editLine: 'Edit Line',
+    leaveMessage: 'Message',
+    leaveMessageHolder: 'Please leave you suggestions',
+    contact: 'Contact (optional)',
+    contactHolder: 'QQ/Email',
+    submit: 'Submit',
+    messageTitle: 'Feedback',
+    thanksForFeedback: 'Thanks for your feedback!',
+    success: 'Success'
   },
   about: {
     name: 'Gsein Redis Client',

@@ -33,7 +33,15 @@ export const lang = {
     deleteHint: '是否确认删除这条数据?',
     deleteKeyHint: '是否确认删除{key}？',
     newLine: '添加新行',
-    editLine: '修改行'
+    editLine: '修改行',
+    leaveMessage: '留言',
+    leaveMessageHolder: '请留下您的问题或建议',
+    contact: '联系方式(可选)',
+    contactHolder: 'QQ/Email/手机号',
+    submit: '提交',
+    messageTitle: '意见反馈',
+    thanksForFeedback: '感谢您的意见反馈!',
+    success: '成功'
   },
   about: {
     name: '吉森Redis客户端',
