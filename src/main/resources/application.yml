@@ -1,11 +1,4 @@
 spring:
-  redis:
-    client-name: java-client
-    host: 123.57.73.15
-    port: 6379
-    username: root
-    password: ccjh123456
-    database: 0
   messages:
     basename: i18n/messages
 server:
