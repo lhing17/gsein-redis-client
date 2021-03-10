@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import '@/assets/css/style.css'
+import '@/assets/css/iconfont.css'
 import VueI18n from 'vue-i18n'
 
 import ElementUI from 'element-ui';

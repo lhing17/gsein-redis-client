@@ -1,0 +1,36 @@
+@font-face {font-family: "iconfont";
+  src: url('../iconfont.ttf?t=1615351531955') format('truetype'); /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-terminal:before {
+  content: "\e6ea";
+}
+
+.icon-github:before {
+  content: "\e76f";
+}
+
+.icon-update:before {
+  content: "\e6aa";
+}
+
+.icon-i18n:before {
+  content: "\e654";
+}
+
+.icon-feedback:before {
+  content: "\e629";
+}
+
+.icon-manual:before {
+  content: "\e656";
+}
+

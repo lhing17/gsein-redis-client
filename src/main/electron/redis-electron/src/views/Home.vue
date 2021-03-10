@@ -7,7 +7,7 @@
                      :name="$t('lang.header.removeConnection')" :disabled="activeIndex === -1"></header-button>
       <header-button class="header-button" icon="el-icon-setting" @click="openEditDialog"
                      :name="$t('lang.header.connectionProperties')" :disabled="activeIndex === -1"></header-button>
-      <header-button class="header-button" icon="el-icon-document-delete" @click="openTerminalTab"
+      <header-button class="header-button" icon-type="terminal" @click="openTerminalTab"
                      :name="$t('lang.header.openTerminal')" :disabled="activeIndex === -1"></header-button>
       <header-button class="header-button" icon="el-icon-refresh" @click="refreshKeys"
                      :name="$t('lang.header.refresh')" :disabled="activeIndex === -1"></header-button>

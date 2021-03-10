@@ -1,6 +1,6 @@
 <template>
   <el-dropdown trigger="click" class="lang" @command="onChangeLang">
-    <header-button class="header-button" icon="el-icon-chat-round"
+    <header-button class="header-button" icon-type="i18n"
                    :name="$t('lang.header.switchLanguage')"></header-button>
     <el-dropdown-menu slot="dropdown">
       <el-dropdown-item command="zh_CN">简体中文</el-dropdown-item>
