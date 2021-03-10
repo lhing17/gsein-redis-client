@@ -65,7 +65,7 @@ task("runApp") {
         val isWindows = osName.contains("windows")
 
         exec {
-            workingDir = File("src/main/electron/redis-electron")
+            workingDir("src/main/electron/redis-electron")
             if (isWindows) {
                 setExecutable(File(workingDir, "node_modules/.bin/vue-cli-service.exe"))
                 args("electron:serve")

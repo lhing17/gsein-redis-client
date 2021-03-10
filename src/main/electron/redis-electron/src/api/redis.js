@@ -1,6 +1,15 @@
+import vue from '../main'
+
 const axios = require('axios')
 
 const baseUrl = 'http://localhost:8081/'
+
+axios.interceptors.request.use(config => {
+  config.params = {lang: vue.$i18n.locale, ...config.params}
+  return config
+}, error => {
+  return Promise.reject(error)
+})
 
 export const newConnection = (form) => axios({
   url: baseUrl + 'redis/new-connection',

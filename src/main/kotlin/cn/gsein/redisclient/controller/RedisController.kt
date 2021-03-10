@@ -3,6 +3,7 @@ package cn.gsein.redisclient.controller
 import cn.gsein.redisclient.data.AjaxResult
 import cn.gsein.redisclient.data.ConnectionData
 import cn.gsein.redisclient.service.RedisService
+import cn.gsein.redisclient.util.MessageUtil
 import io.lettuce.core.RedisCommandExecutionException
 import io.lettuce.core.RedisConnectionException
 import io.netty.channel.ConnectTimeoutException
@@ -28,6 +29,9 @@ class RedisController {
     @Resource
     lateinit var redisService: RedisService
 
+    @Resource
+    lateinit var messageUtil: MessageUtil
+
     @GetMapping
     fun ensureConnected(): String {
         return "ok"
@@ -42,7 +46,7 @@ class RedisController {
             connectionData.port = 6379
         }
         redisService.registerNewRedisAddress(connectionData)
-        return AjaxResult.ok()
+        return ok()
     }
 
     @PostMapping("remove-connection")
@@ -59,14 +63,18 @@ class RedisController {
             connectionData.port = 6379
         }
         return try {
-            if (redisService.testConnection(connectionData)) AjaxResult.ok(message = "连接成功") else AjaxResult.error("连接失败")
+            if (redisService.testConnection(connectionData))
+                AjaxResult.ok(message = messageUtil.message("connection.success"))
+            else AjaxResult.error(
+                messageUtil.message("connection.fail")
+            )
         } catch (e: RedisConnectionException) {
             log.warn(e.message, e)
             return when (e.cause) {
-                is ConnectTimeoutException -> AjaxResult.error("连接超时")
-                is ConnectException -> AjaxResult.error("连接失败")
+                is ConnectTimeoutException -> AjaxResult.error(messageUtil.message("connection.timeout"))
+                is ConnectException -> AjaxResult.error(messageUtil.message("connection.fail"))
                 is RedisCommandExecutionException -> AjaxResult.error((e.cause as RedisCommandExecutionException).message)
-                else -> AjaxResult.error("连接失败")
+                else -> AjaxResult.error(messageUtil.message("connection.fail"))
             }
 
         }
@@ -86,7 +94,7 @@ class RedisController {
             map["timestamp"] = it.value.createTimestamp.toString()
             map
         }
-        return AjaxResult.ok(list.sortedBy {
+        return ok(list.sortedBy {
             val timestamp = it["timestamp"]
             if (timestamp.isNullOrEmpty() || timestamp == "null") {
                 -1L
@@ -99,13 +107,13 @@ class RedisController {
     @GetMapping("/get-info")
     fun getInfo(key: String): AjaxResult<Map<String, Map<String, String>>> {
         val info = redisService.getInfo(key)
-        return AjaxResult.ok(info)
+        return ok(info)
     }
 
     @GetMapping("/get-keys")
     fun getKeys(key: String, database: Int): AjaxResult<List<String>> {
         val keys = redisService.getKeys(key, database)
-        return AjaxResult.ok(keys)
+        return ok(keys)
     }
 
     @GetMapping("/get-value")
@@ -116,7 +124,7 @@ class RedisController {
         info["key"] = redisKey
         info["ttl"] = redisService.getTtl(key, database, redisKey)
 
-        return AjaxResult.ok(info)
+        return ok(info)
     }
 
     @PostMapping("/update-string-value")
@@ -134,7 +142,7 @@ class RedisController {
     @PostMapping("/update-ttl")
     fun updateTtl(key: String, database: Int, redisKey: String, ttl: Long): AjaxResult<Any?> {
         val result = redisService.updateTtl(key, database, redisKey, ttl)
-        return if (result) AjaxResult.ok() else AjaxResult.error("操作异常")
+        return if (result) ok() else AjaxResult.error(messageUtil.message("operation.exception"))
     }
 
     @PostMapping("/delete-key")
@@ -152,9 +160,9 @@ class RedisController {
     @PostMapping("/add-set-value")
     fun addSetValue(key: String, database: Int, redisKey: String, redisValue: String): AjaxResult<Any?> {
         return when (redisService.addSetValue(key, database, redisKey, redisValue)) {
-            0L -> AjaxResult.error("值已存在")
-            1L -> AjaxResult.ok()
-            else -> AjaxResult.error("操作异常")
+            0L -> AjaxResult.error(messageUtil.message("value.exists"))
+            1L -> ok()
+            else -> AjaxResult.error(messageUtil.message("operation.exception"))
         }
     }
 
@@ -167,8 +175,8 @@ class RedisController {
         redisHashValue: String
     ): AjaxResult<Any?> {
         return when (redisService.addHashValue(key, database, redisKey, redisHashKey, redisHashValue)) {
-            false -> AjaxResult.error("值已存在")
-            true -> AjaxResult.ok()
+            false -> AjaxResult.error(messageUtil.message("value.exists"))
+            true -> ok()
         }
     }
 
@@ -181,9 +189,9 @@ class RedisController {
         redisValue: String
     ): AjaxResult<Any?> {
         return when (redisService.addZsetValue(key, database, redisKey, score, redisValue)) {
-            0L -> AjaxResult.error("值已存在，已更新分值")
-            1L -> AjaxResult.ok()
-            else -> AjaxResult.error("操作异常")
+            0L -> AjaxResult.error(messageUtil.message("value.exists.and.update"))
+            1L -> ok()
+            else -> AjaxResult.error(messageUtil.message("operation.exception"))
         }
     }
 
@@ -208,9 +216,9 @@ class RedisController {
         newRedisValue: String
     ): AjaxResult<Any?> {
         return when (redisService.updateSetValue(key, database, redisKey, oldRedisValue, newRedisValue)) {
-            0 -> AjaxResult.error("值已存在")
-            1 -> AjaxResult.ok()
-            else -> AjaxResult.error("操作异常")
+            0 -> AjaxResult.error(messageUtil.message("value.exists"))
+            1 -> ok()
+            else -> AjaxResult.error(messageUtil.message("operation.exception"))
         }
     }
 
@@ -259,12 +267,15 @@ class RedisController {
 
     @PostMapping("/send-command")
     fun sendCommand(key: String, database: Int, command: String): AjaxResult<Any?> {
-        return AjaxResult.ok("123")
+        return ok("123")
     }
 
+    private fun <T> ok(data: T? = null) : AjaxResult<T>{
+        return AjaxResult.ok(data, messageUtil.message("operation.success"))
+    }
 
     private fun buildAjaxResult(result: Boolean): AjaxResult<Any?> =
-        if (result) AjaxResult.ok() else AjaxResult.error("操作异常")
+        if (result) ok() else AjaxResult.error(messageUtil.message("operation.exception"))
 
 
 }

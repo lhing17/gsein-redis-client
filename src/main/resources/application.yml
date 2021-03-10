@@ -6,5 +6,7 @@ spring:
     username: root
     password: ccjh123456
     database: 0
+  messages:
+    basename: i18n/messages
 server:
   port: 8081

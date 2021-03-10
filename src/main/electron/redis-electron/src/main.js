@@ -12,18 +12,20 @@ Vue.use(ElementUI);
 Vue.use(VueI18n)
 
 const i18n = new VueI18n({
-  locale: 'zh',
+  locale: 'zh_CN',
   messages: {
-    zh: require('./lang/zh'),
-    en: require('./lang/en')
+    zh_CN: require('./lang/zh_CN'),
+    en_US: require('./lang/en_US')
   }
 })
 
 Vue.config.productionTip = false
 
-new Vue({
+const vue = new Vue({
   router,
   i18n,
   store,
   render: h => h(App)
 }).$mount('#app')
+
+export default vue

@@ -15,8 +15,8 @@
         <header-button class="header-button" icon="el-icon-chat-round"
                        :name="$t('lang.header.switchLanguage')"></header-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="zh">简体中文</el-dropdown-item>
-          <el-dropdown-item command="en">English</el-dropdown-item>
+          <el-dropdown-item command="zh_CN">简体中文</el-dropdown-item>
+          <el-dropdown-item command="en_US">English</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </el-header>
