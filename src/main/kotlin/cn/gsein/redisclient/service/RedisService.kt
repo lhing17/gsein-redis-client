@@ -4,6 +4,7 @@ import cn.gsein.redisclient.data.ConnectionData
 import io.lettuce.core.*
 import io.lettuce.core.api.StatefulRedisConnection
 import org.slf4j.LoggerFactory
+import org.springframework.data.redis.connection.lettuce.LettuceConnection
 import org.springframework.stereotype.Service
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -377,9 +378,34 @@ class RedisService {
     }
 
 
-    fun sendCommand(key: String, database: Int, command: String): String {
-        val connection = getConnection(key, database)
-        return ""
+    fun sendCommand(key: String, database: Int, fullCommand: String): Any? {
+        val client = buildRedisClient(key, database)
+        val connection = LettuceConnection(60 * 1000L, client)
+        val commandAndArgs = fullCommand.split("\\s".toRegex())
+        val command = commandAndArgs[0]
+        val args = commandAndArgs.asSequence().drop(1).joinToString(" ").toByteArray()
+        return try {
+            val result = connection.execute(command, args)
+            if (command.equals("ping", ignoreCase = true)) {
+                return "PONG"
+            }
+
+            return when (result) {
+                is List<*> -> result.map { String(it as ByteArray) }
+                is Set<*> -> result.map { String(it as ByteArray) }
+                is Map<*, *> -> result.entries.associateBy ({ String(it.key as ByteArray) }, {String(it.value as ByteArray)})
+                is ByteArray -> String(result)
+                else -> result
+            }
+        } catch (e: Exception) {
+            if (e is java.lang.IllegalArgumentException) {
+                return "ERR unknown command '$command'"
+            }
+            when (e.cause) {
+                is RedisCommandExecutionException -> (e.cause as RedisCommandExecutionException).message
+                else -> e.message
+            }
+        }
     }
 
     private fun getConnection(uuid: String, database: Int): StatefulRedisConnection<String, String> {
@@ -387,19 +413,24 @@ class RedisService {
         return if (connection != null && connection.isOpen) {
             connection
         } else {
-            val connectionData = redisAddressMap[uuid]
-            val builder = RedisURI.builder()
-            val uri = with(builder) {
-                withHost(connectionData?.host)
-                connectionData?.port?.let { withPort(it) }
-                withPassword(connectionData?.password?.toCharArray())
-                withDatabase(database)
-                build()
-            }
-
-            val client = RedisClient.create(uri)
+            val client = buildRedisClient(uuid, database)
             client.connect()
         }
+    }
+
+    private fun buildRedisClient(uuid: String, database: Int): RedisClient {
+        val connectionData = redisAddressMap[uuid]
+        val builder = RedisURI.builder()
+        val uri = with(builder) {
+            withHost(connectionData?.host)
+            connectionData?.port?.let { withPort(it) }
+            withPassword(connectionData?.password?.toCharArray())
+            withDatabase(database)
+            build()
+        }
+
+        val client = RedisClient.create(uri)
+        return client
     }
 
     private fun nextUuid(): String {

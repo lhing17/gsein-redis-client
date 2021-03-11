@@ -121,11 +121,7 @@ class RedisController {
             map["username"] = connectionData.username.toString()
             map["password"] = connectionData.password.toString()
             map["timestamp"] = connectionData.createTimestamp.toString()
-//            map["valid"] = try {
-//                redisService.testConnection(connectionData).toString()
-//            } catch (e: Exception) {
-//                "false"
-//            }
+
             map
         }
         return ok(list.sortedBy {
@@ -301,7 +297,7 @@ class RedisController {
 
     @PostMapping("/send-command")
     fun sendCommand(key: String, database: Int, command: String): AjaxResult<Any?> {
-        return ok("123")
+        return ok(redisService.sendCommand(key, database, command))
     }
 
     private fun <T> ok(data: T? = null): AjaxResult<T> {

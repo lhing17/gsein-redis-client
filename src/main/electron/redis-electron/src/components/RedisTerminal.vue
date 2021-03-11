@@ -34,14 +34,27 @@ export default {
     onSubmit() {
       this.content = this.content + '>' + this.command + '\n'
       this.history.push(this.command)
-      this.command = ''
       this.currentIndex = this.history.length
       console.log(this.info)
-      sendCommand(this.info.key, this.info.database).then(res => {
+      sendCommand(this.info.key, this.info.database, this.command).then(res => {
+        console.log(res.data)
         if (res.data.code === 200) {
-          this.content = this.content + res.data.data + '\n'
+          const result = res.data.data
+          if (result instanceof Array) {
+            result.forEach(r => {
+              this.content = this.content + r + '\n'
+            })
+          } else if (result instanceof Object) {
+            Object.keys(result).forEach(k => {
+              this.content = this.content + k + '\n'
+              this.content = this.content + result[k] + '\n'
+            })
+          } else {
+            this.content = this.content + result + '\n'
+          }
         }
       })
+      this.command = ''
     },
     onPressUp() {
       if (this.history.length !== 0) {
