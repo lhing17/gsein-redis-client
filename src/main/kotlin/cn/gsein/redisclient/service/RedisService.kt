@@ -383,14 +383,9 @@ class RedisService {
         val connection = LettuceConnection(60 * 1000L, client)
         val commandAndArgs = fullCommand.split("\\s".toRegex())
         val command = commandAndArgs[0]
-        val args = commandAndArgs.asSequence().drop(1).joinToString(" ").toByteArray()
+        val args = commandAndArgs.asSequence().drop(1).map { it.toByteArray() }.toList().toTypedArray()
         return try {
-            val result = connection.execute(command, args)
-            if (command.equals("ping", ignoreCase = true)) {
-                return "PONG"
-            }
-
-            return when (result) {
+            return when (val result = connection.execute(command, *args)) {
                 is List<*> -> result.map { String(it as ByteArray) }
                 is Set<*> -> result.map { String(it as ByteArray) }
                 is Map<*, *> -> result.entries.associateBy ({ String(it.key as ByteArray) }, {String(it.value as ByteArray)})

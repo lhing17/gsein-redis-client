@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-input type="textarea" :value="content" :rows="10" readonly resize="none"></el-input>
+    <el-input id="content" type="textarea" :value="content" :rows="20" readonly resize="none"></el-input>
     <el-input placeholder="输入Redis命令后，按Enter键执行，上下键切换历史"
               v-model="command"
               @keyup.enter.native="onSubmit"
@@ -55,6 +55,13 @@ export default {
         }
       })
       this.command = ''
+      // 滚动条滚动到最底部
+      this.$nextTick(() => {
+        setTimeout(() => {
+          const textarea = document.getElementById('content');
+          textarea.scrollTop = textarea.scrollHeight;
+        }, 300)
+      })
     },
     onPressUp() {
       if (this.history.length !== 0) {
