@@ -65,7 +65,7 @@
           <el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name">
             <redis-info :info="item.content" v-if="item.type === 0"></redis-info>
             <redis-value-info :info="item.content" v-if="item.type === 1" @refresh-data="refreshRedisValue"
-                              @delete-key="handleDeleteKey"/>
+                              @delete-key="handleDeleteKey" @update-key="handleUpdateKey"/>
             <redis-terminal :info="item.content" v-if="item.type===2"></redis-terminal>
           </el-tab-pane>
         </el-tabs>
@@ -551,6 +551,17 @@ export default {
 
       // 更新keys
       address.keys = address.keys.filter(k => k !== redisKey)
+    },
+    handleUpdateKey(data) {
+      const address = this.getAddressByKey(data.key)
+      const keys = address.keys.map(key => {
+        if (key === data.oldKey) {
+          return data.newKey
+        } else {
+          return key
+        }
+      })
+      this.$set(address, 'keys', keys)
     },
     updateAddresses() {
       listAddresses().then(res => {

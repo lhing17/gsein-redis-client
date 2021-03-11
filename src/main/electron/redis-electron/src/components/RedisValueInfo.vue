@@ -276,6 +276,7 @@ export default {
           updateKey(this.info.connectionKey, this.info.database, this.originalKey, this.info.key).then(res => {
             if (res.data.code === 200) {
               const message = res.data.message
+              this.$emit('update-key', {key: this.info.connectionKey, oldKey: this.originalKey, newKey: this.info.key})
               this.originalKey = this.info.key
 
               this.$message({
