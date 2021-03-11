@@ -93,18 +93,39 @@ class RedisController {
         }
     }
 
+    @GetMapping("/address-status")
+    fun addressStatus(): AjaxResult<Map<String, Boolean>> {
+        val addressMap = redisService.listAddresses()
+        return ok(
+            addressMap.entries.associateBy({ it.key },
+                {
+                    try {
+                        redisService.testConnection(it.value)
+                    } catch (e: Exception) {
+                        false
+                    }
+                })
+        )
+    }
+
     @GetMapping("/list-addresses")
     fun listAddresses(): AjaxResult<List<Map<String, String>>> {
         val addressMap = redisService.listAddresses()
         val list = addressMap.entries.map {
             val map = HashMap<String, String>()
-            map["host"] = it.value.host.toString()
-            map["port"] = it.value.port.toString()
+            val connectionData = it.value
+            map["host"] = connectionData.host.toString()
+            map["port"] = connectionData.port.toString()
             map["key"] = it.key
-            map["separator"] = it.value.separator.toString()
-            map["username"] = it.value.username.toString()
-            map["password"] = it.value.password.toString()
-            map["timestamp"] = it.value.createTimestamp.toString()
+            map["separator"] = connectionData.separator.toString()
+            map["username"] = connectionData.username.toString()
+            map["password"] = connectionData.password.toString()
+            map["timestamp"] = connectionData.createTimestamp.toString()
+//            map["valid"] = try {
+//                redisService.testConnection(connectionData).toString()
+//            } catch (e: Exception) {
+//                "false"
+//            }
             map
         }
         return ok(list.sortedBy {

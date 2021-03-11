@@ -367,13 +367,15 @@ class RedisService {
         val client = RedisClient.create(uri)
         val connect = client.connect()
 
-        // 使用use函数自动关闭流
-        connect.use {
-            val pingResult = it.sync().ping()
+        // 使用后自动关闭流
+        try {
+            val pingResult = connect.sync().ping()
             return "PONG" == pingResult
+        } finally {
+            connect.closeAsync()
         }
-
     }
+
 
     fun sendCommand(key: String, database: Int, command: String): String {
         val connection = getConnection(key, database)

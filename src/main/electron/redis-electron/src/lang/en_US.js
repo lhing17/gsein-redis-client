@@ -79,5 +79,12 @@ export const lang = {
     commandsProcessed: 'Commands Processed: ',
     keyValue: 'Key Space',
     completeInfo: 'Full Redis Information'
+  },
+  connection: {
+    loadMore: 'Load More',
+    newKey: 'New key',
+    valid: 'Valid',
+    invalid: 'Invalid',
+    invalidConnection: 'Invalid connection'
   }
 }

@@ -40,6 +40,11 @@ export const listAddresses = () => axios({
   method: 'get'
 })
 
+export const addressStatus = () => axios({
+  url: baseUrl + 'redis/address-status',
+  method: 'get'
+})
+
 export const getInfo = (key) => axios({
   url: baseUrl + 'redis/get-info?key=' + key,
   method: 'get'

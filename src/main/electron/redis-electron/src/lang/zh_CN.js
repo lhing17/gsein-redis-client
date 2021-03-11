@@ -79,5 +79,12 @@ export const lang = {
     commandsProcessed: '历史命令数：',
     keyValue: '键值统计',
     completeInfo: 'Redis信息全集'
+  },
+  connection: {
+    loadMore: '加载更多',
+    newKey: '新增key',
+    valid: '有效',
+    invalid: '无效',
+    invalidConnection: '无效的连接'
   }
 }

@@ -20,23 +20,41 @@
           <el-submenu v-for="(address, i) in addresses" :key="address.key" :index="i+''">
             <template slot="title">
               <span class="align-left">{{ address.host }}@{{ address.port }}</span>
+              <span class="align-left" :style="address.valid?'color:green':'color:red'"
+                    v-if="address.valid!==undefined"> ({{
+                  address.valid ? $t('lang.connection.valid') : $t('lang.connection.invalid')
+                }})</span>
             </template>
             <el-menu-item-group>
               <template slot="title">
-                <el-select v-model="address.database" placeholder="请选择" @change="handleDatabaseChange">
-                  <el-option
-                    v-for="item in address.databaseOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
+                <el-row :gutter="10">
+                  <el-col :span="12">
+                    <el-select v-model="address.database" placeholder="请选择" @change="handleDatabaseChange">
+                      <el-option
+                        v-for="item in address.databaseOptions"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-button @click="addNewKey(address)" icon="el-icon-plus">{{
+                        $t('lang.connection.newKey')
+                      }}
+                    </el-button>
+                  </el-col>
+                </el-row>
               </template>
               <el-menu-item :index="i + '-'+index" v-for="(key, index) in address.keys" :key="index">{{
                   key
                 }}
               </el-menu-item>
-              <el-button @click="loadMoreKeys(address)" :disabled="address.finished">加载更多</el-button>
+              <div class="load-more-wrapper">
+                <el-button class="load-more" @click="loadMoreKeys(address)" :disabled="address.finished">
+                  {{ $t('lang.connection.loadMore') }}
+                </el-button>
+              </div>
             </el-menu-item-group>
           </el-submenu>
         </el-menu>
@@ -92,6 +110,7 @@
 // @ is an alias to /src
 
 import {
+  addressStatus,
   editConnection,
   getInfo,
   getKeys,
@@ -185,7 +204,7 @@ export default {
               const host = address.host
               const port = address.port
               const key = address.key
-              const database = address.activeDatabase
+              const database = address.database
               const info = {host, port, key, database}
               this.editableTabs.push({
                 title: host + '@' + port,
@@ -410,7 +429,7 @@ export default {
                 value: parseInt(key.substring(2))
               })
             })
-            this.$set(this.addresses[index], 'activeDatabase', 0)
+            this.$set(this.addresses[index], 'database', 0)
             // 获取db0的所有keys
             getKeys(this.addresses[index].key, 0, '0').then(
               response => {
@@ -425,6 +444,12 @@ export default {
             console.log(this.addresses)
             this.activeName = newTabName
           }
+        }).catch(() => {
+          this.$message({
+            showClose: true,
+            message: this.$t('lang.connection.invalidConnection').toString(),
+            type: 'error'
+          })
         });
       }
     },
@@ -438,7 +463,7 @@ export default {
       return hash;
     },
     loadMoreKeys(address) {
-      getKeys(address.key, address.activeDatabase, address.cursor).then(
+      getKeys(address.key, address.database, address.cursor).then(
         response => {
           if (response.data.code === 200) {
             const data = response.data.data
@@ -452,7 +477,7 @@ export default {
     refreshKeys() {
       const index = this.activeIndex
       // 获取db0的所有keys
-      getKeys(this.addresses[index].key, this.addresses[index].activeDatabase, '0').then(
+      getKeys(this.addresses[index].key, this.addresses[index].database, '0').then(
         response => {
           if (response.data.code === 200) {
             const data = response.data.data
@@ -490,7 +515,7 @@ export default {
     handleDatabaseChange(val) {
       if (this.activeKey) {
         const index = this.activeIndex
-        this.$set(this.addresses[index], 'activeDatabase', val)
+        this.$set(this.addresses[index], 'database', val)
         // 获取db0的所有keys
         getKeys(this.addresses[index].key, val, '0').then(
           response => {
@@ -532,7 +557,20 @@ export default {
         if (res.data.code === 200) {
           this.addresses = res.data.data
           this.addresses.forEach(address => {
-            this.$set(address, 'database', 0)
+            if (!address.database) {
+              this.$set(address, 'database', 0)
+              this.updateAddressStatus()
+            }
+          })
+        }
+      })
+    },
+    updateAddressStatus() {
+      addressStatus().then(res => {
+        if (res.data.code === 200) {
+          const statusMap = res.data.data
+          this.addresses.forEach(address => {
+            this.$set(address, 'valid', statusMap[address.key])
           })
         }
       })
@@ -580,6 +618,19 @@ export default {
 /deep/ .el-menu-item, /deep/ .el-submenu__title {
   height: 40px !important;
   line-height: 40px !important;
+}
+
+.load-more {
+  width: 100%;
+  padding: 2px 20px;
+}
+
+.load-more-wrapper {
+  margin: 0 10px;
+}
+
+/deep/ .el-menu-item-group__title {
+  padding-left: 0 !important;
 }
 
 </style>
