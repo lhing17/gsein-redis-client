@@ -1,8 +1,7 @@
 package cn.gsein.redisclient.service
 
 import cn.gsein.redisclient.data.ConnectionData
-import io.lettuce.core.RedisClient
-import io.lettuce.core.RedisURI
+import io.lettuce.core.*
 import io.lettuce.core.api.StatefulRedisConnection
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -19,6 +18,8 @@ class RedisService {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     companion object {
+        const val KEY_COUNT = 100L
+
         var connectionMap: MutableMap<String, MutableMap<Int, StatefulRedisConnection<String, String>>> =
             ConcurrentHashMap()
 
@@ -95,9 +96,9 @@ class RedisService {
         }
     }
 
-    fun getKeys(key: String, database: Int): List<String> {
+    fun getKeys(key: String, database: Int, cursor: String): KeyScanCursor<String>? {
         val connection = getConnection(key, database)
-        return connection.sync().keys("*")
+        return connection.sync().scan(ScanCursor.of(cursor), ScanArgs.Builder.limit(KEY_COUNT))
     }
 
     /**

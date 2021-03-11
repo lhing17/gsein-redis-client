@@ -45,8 +45,8 @@ export const getInfo = (key) => axios({
   method: 'get'
 })
 
-export const getKeys = (key, database) => axios({
-  url: baseUrl + 'redis/get-keys?key=' + key + '&database=' + database,
+export const getKeys = (key, database, cursor) => axios({
+  url: baseUrl + 'redis/get-keys?key=' + key + '&database=' + database + '&cursor=' + cursor,
   method: 'get'
 })
 

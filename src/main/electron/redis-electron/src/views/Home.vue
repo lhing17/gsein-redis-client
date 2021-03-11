@@ -36,6 +36,7 @@
                   key
                 }}
               </el-menu-item>
+              <el-button @click="loadMoreKeys(address)" :disabled="address.finished">加载更多</el-button>
             </el-menu-item-group>
           </el-submenu>
         </el-menu>
@@ -411,10 +412,13 @@ export default {
             })
             this.$set(this.addresses[index], 'activeDatabase', 0)
             // 获取db0的所有keys
-            getKeys(this.addresses[index].key, 0).then(
+            getKeys(this.addresses[index].key, 0, '0').then(
               response => {
                 if (response.data.code === 200) {
-                  this.$set(this.addresses[index], 'keys', response.data.data)
+                  const data = response.data.data
+                  this.$set(this.addresses[index], 'keys', data.keys.sort())
+                  this.$set(this.addresses[index], 'cursor', data.cursor)
+                  this.$set(this.addresses[index], 'finished', data.finished)
                 }
               }
             )
@@ -424,13 +428,37 @@ export default {
         });
       }
     },
+    unique(arr) {
+      const hash = [];
+      for (let i = 0; i < arr.length; i++) {
+        if (arr.indexOf(arr[i]) === i) {
+          hash.push(arr[i]);
+        }
+      }
+      return hash;
+    },
+    loadMoreKeys(address) {
+      getKeys(address.key, address.activeDatabase, address.cursor).then(
+        response => {
+          if (response.data.code === 200) {
+            const data = response.data.data
+            this.$set(address, 'keys', this.unique(address.keys.concat(data.keys.sort())))
+            this.$set(address, 'cursor', data.cursor)
+            this.$set(address, 'finished', data.finished)
+          }
+        }
+      )
+    },
     refreshKeys() {
       const index = this.activeIndex
       // 获取db0的所有keys
-      getKeys(this.addresses[index].key, this.addresses[index].activeDatabase).then(
+      getKeys(this.addresses[index].key, this.addresses[index].activeDatabase, '0').then(
         response => {
           if (response.data.code === 200) {
-            this.$set(this.addresses[index], 'keys', response.data.data)
+            const data = response.data.data
+            this.$set(this.addresses[index], 'keys', data.keys.sort())
+            this.$set(this.addresses[index], 'cursor', data.cursor)
+            this.$set(this.addresses[index], 'finished', data.finished)
           }
         }
       )
@@ -464,10 +492,13 @@ export default {
         const index = this.activeIndex
         this.$set(this.addresses[index], 'activeDatabase', val)
         // 获取db0的所有keys
-        getKeys(this.addresses[index].key, val).then(
+        getKeys(this.addresses[index].key, val, '0').then(
           response => {
             if (response.data.code === 200) {
-              this.$set(this.addresses[index], 'keys', response.data.data)
+              const data = response.data.data
+              this.$set(this.addresses[index], 'keys', data.keys.sort())
+              this.$set(this.addresses[index], 'cursor', data.cursor)
+              this.$set(this.addresses[index], 'finished', data.finished)
             }
           }
         )

@@ -4,6 +4,7 @@ import cn.gsein.redisclient.data.AjaxResult
 import cn.gsein.redisclient.data.ConnectionData
 import cn.gsein.redisclient.service.RedisService
 import cn.gsein.redisclient.util.MessageUtil
+import io.lettuce.core.KeyScanCursor
 import io.lettuce.core.RedisCommandExecutionException
 import io.lettuce.core.RedisConnectionException
 import io.netty.channel.ConnectTimeoutException
@@ -123,8 +124,8 @@ class RedisController {
     }
 
     @GetMapping("/get-keys")
-    fun getKeys(key: String, database: Int): AjaxResult<List<String>> {
-        val keys = redisService.getKeys(key, database)
+    fun getKeys(key: String, database: Int, cursor: String): AjaxResult<KeyScanCursor<String>> {
+        val keys = redisService.getKeys(key, database, cursor)
         return ok(keys)
     }
 
