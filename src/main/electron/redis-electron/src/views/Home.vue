@@ -1,5 +1,5 @@
 <template>
-  <el-container>
+  <el-container class="connection-container">
     <el-header>
       <header-button class="header-button" icon="el-icon-plus" @click="openConnectionDialog"
                      :name="$t('lang.header.newConnection')"></header-button>
@@ -13,53 +13,59 @@
                      :name="$t('lang.header.refresh')" :disabled="activeIndex === -1"></header-button>
       <lang-dropdown></lang-dropdown>
     </el-header>
-    <el-container>
-      <el-aside width="300px">
-        <el-menu @select="handleMenuItemSelected" @open="handleOpenSubMenu" @close="handleCloseSubMenu"
-                 :unique-opened="true" :default-openeds="opened">
-          <el-submenu v-for="(address, i) in addresses" :key="address.key" :index="i+''">
-            <template slot="title">
-              <span class="align-left">{{ address.host }}@{{ address.port }}</span>
-              <span class="align-left" :style="address.valid?'color:green':'color:red'"
-                    v-if="address.valid!==undefined"> ({{
-                  address.valid ? $t('lang.connection.valid') : $t('lang.connection.invalid')
-                }})</span>
-            </template>
-            <el-menu-item-group>
+    <el-container class="menu-container">
+      <div class="aside-drag-container" :style="{width: sideWidth + 'px'}">
+        <el-aside class="aside">
+          <el-menu @select="handleMenuItemSelected" @open="handleOpenSubMenu" @close="handleCloseSubMenu"
+                   :unique-opened="true" :default-openeds="opened">
+            <el-submenu v-for="(address, i) in addresses" :key="address.key" :index="i+''">
               <template slot="title">
-                <el-row :gutter="10">
-                  <el-col :span="12">
-                    <el-select v-model="address.database" placeholder="请选择" @change="handleDatabaseChange">
-                      <el-option
-                        v-for="item in address.databaseOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                      </el-option>
-                    </el-select>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-button @click="addNewKey(address)" icon="el-icon-plus">{{
-                        $t('lang.connection.newKey')
-                      }}
-                    </el-button>
-                  </el-col>
-                </el-row>
+                <span class="align-left">{{ address.host }}@{{ address.port }} </span>
+                <el-tag class="align-left" :type="address.valid?'success':'danger'" size="mini"
+                        v-if="address.valid!==undefined"> {{
+                    address.valid ? $t('lang.connection.valid') : $t('lang.connection.invalid')
+                  }}
+                </el-tag>
               </template>
-              <el-menu-item :index="i + '-'+index" v-for="(key, index) in address.keys" :key="index">{{
-                  key
-                }}
-              </el-menu-item>
-              <div class="load-more-wrapper">
-                <el-button class="load-more" @click="loadMoreKeys(address)" :disabled="address.finished">
-                  {{ $t('lang.connection.loadMore') }}
-                </el-button>
-              </div>
-            </el-menu-item-group>
-          </el-submenu>
-        </el-menu>
-      </el-aside>
-      <div class="resize"> ⋮</div>
+              <el-menu-item-group>
+                <template slot="title">
+                  <el-row :gutter="10">
+                    <el-col :span="12">
+                      <el-select v-model="address.database" placeholder="请选择" @change="handleDatabaseChange">
+                        <el-option
+                          v-for="item in address.databaseOptions"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value">
+                        </el-option>
+                      </el-select>
+                    </el-col>
+                    <el-col :span="12">
+                      <el-button @click="addNewKey(address)" icon="el-icon-plus">{{
+                          $t('lang.connection.newKey')
+                        }}
+                      </el-button>
+                    </el-col>
+                  </el-row>
+                </template>
+                <el-menu-item :index="i + '-'+index" v-for="(key, index) in address.keys" :key="index">{{
+                    key
+                  }}
+                </el-menu-item>
+                <div class="load-more-wrapper">
+                  <el-button class="load-more" @click="loadMoreKeys(address)" :disabled="address.finished">
+                    {{ $t('lang.connection.loadMore') }}
+                  </el-button>
+                </div>
+              </el-menu-item-group>
+            </el-submenu>
+          </el-menu>
+        </el-aside>
+        <!-- drag area -->
+        <div id="drag-resize-container">
+          <div id="drag-resize-pointer"></div>
+        </div>
+      </div>
       <el-main>
         <el-tabs v-model="activeName" type="card" @tab-click="handleTabClick" closable @tab-remove="handleTabRemove">
           <el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name">
@@ -147,10 +153,39 @@ export default {
         ]
       },
       opened: [],
-      operationType: 'add'
+      operationType: 'add',
+      sideWidth: 300
     }
   },
   methods: {
+    bindSideBarDrag() {
+      const that = this;
+      const dragPointer = document.getElementById('drag-resize-pointer');
+
+      function mousemove(e) {
+        const mouseX = e.x;
+        const dragSideWidth = mouseX - 19;
+
+        if ((dragSideWidth > 200) && (dragSideWidth < 500)) {
+          that.sideWidth = dragSideWidth;
+        }
+      }
+
+      function mouseup(e) {
+        document.documentElement.removeEventListener('mousemove', mousemove);
+        document.documentElement.removeEventListener('mouseup', mouseup);
+
+        // store side bar with
+        localStorage.sideWidth = that.sideWidth;
+      }
+
+      dragPointer.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+
+        document.documentElement.addEventListener('mousemove', mousemove);
+        document.documentElement.addEventListener('mouseup', mouseup);
+      });
+    },
     handleClose(done) {
       done()
     },
@@ -589,26 +624,11 @@ export default {
   },
   mounted() {
     this.updateAddresses()
+    this.bindSideBarDrag()
   }
 }
 </script>
 <style scoped>
-.resize {
-  cursor: col-resize;
-  float: left;
-  position: relative;
-  top: 45%;
-  background-color: #d6d6d6;
-  border-radius: 5px;
-  margin-top: -10px;
-  width: 10px;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  /*z-index: 99999;*/
-  font-size: 32px;
-  color: white;
-}
 
 .el-header {
   background: #f3f2f1;
@@ -642,6 +662,75 @@ export default {
 
 /deep/ .el-menu-item-group__title {
   padding-left: 0 !important;
+}
+
+/deep/ .el-submenu__title {
+  padding-left: 40px !important;
+}
+
+/deep/ .el-submenu__icon-arrow {
+  left: 20px;
+  right: auto;
+}
+
+.connection-container {
+  height: calc(100% - 43px);
+}
+
+.menu-container {
+  height: calc(100% - 60px);
+}
+
+.aside-drag-container {
+  position: relative;
+  user-select: none;
+  max-width: 50%;
+}
+
+#drag-resize-container {
+  position: absolute;
+  /*height: 100%;*/
+  width: 10px;
+  right: -5px;
+  top: 0;
+}
+
+#drag-resize-pointer {
+  position: fixed;
+  height: 100%;
+  width: 18px;
+  cursor: col-resize;
+}
+
+#drag-resize-pointer::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 20px;
+  border-left: 1px solid #adabab;
+  border-right: 1px solid #adabab;
+
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+.aside {
+  width: 100% !important;
+  height: 100%;
+  border-right: solid 1px #e6e6e6;
+  overflow-x: hidden;
+}
+
+.el-menu {
+  border: 0;
+}
+
+/*fix el-select bottom scroll bar*/
+.el-scrollbar__wrap {
+  overflow-x: hidden;
 }
 
 </style>
