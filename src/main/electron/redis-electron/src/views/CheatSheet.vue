@@ -33,7 +33,9 @@
             </el-tooltip>
             </span>
               </div>
-              <p class="command-summary">{{ item.summary }}</p>
+              <p class="command-summary">{{
+                  $t('lang.commands.' + item.dataName.replace(' ', '_').replace('-', '_'))
+                }}</p>
             </el-card>
           </el-col>
         </el-row>
