@@ -41,7 +41,11 @@ export const lang = {
     submit: '提交',
     messageTitle: '意见反馈',
     thanksForFeedback: '感谢您的意见反馈!',
-    success: '成功'
+    success: '成功',
+    keyName: '键名',
+    keyType: '类型',
+    enterKeyName: '请输入键名',
+    selectKeyType: '请选择类型'
   },
   about: {
     name: '吉森Redis客户端',

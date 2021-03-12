@@ -300,6 +300,22 @@ class RedisController {
         return ok(redisService.sendCommand(key, database, command))
     }
 
+    /**
+     * 判断键是否存在
+     */
+    @GetMapping("/exists")
+    fun exists(key: String, database: Int, redisKey: String): AjaxResult<Boolean> {
+        return ok(redisService.exists(key, database, redisKey))
+    }
+
+    /**
+     * 向redis中添加一个新键
+     */
+    @PostMapping("/add-new-key")
+    fun addNewKey(key: String, database: Int, redisKey: String, type: String): AjaxResult<Any?> {
+       return buildAjaxResult(redisService.addNewKey(key, database, redisKey, type))
+    }
+
     private fun <T> ok(data: T? = null): AjaxResult<T> {
         return AjaxResult.ok(data, messageUtil.message("operation.success"))
     }

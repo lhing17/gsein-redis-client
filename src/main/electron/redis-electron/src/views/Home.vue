@@ -41,7 +41,7 @@
                       </el-select>
                     </el-col>
                     <el-col :span="12">
-                      <el-button @click="addNewKey(address)" icon="el-icon-plus">{{
+                      <el-button @click="openNewKeyDialog(address.key)" icon="el-icon-plus">{{
                           $t('lang.connection.newKey')
                         }}
                       </el-button>
@@ -109,6 +109,28 @@
         <el-button @click="testConnection" type="primary">{{ $t('lang.dialog.testConnection') }}</el-button>
       </el-form>
     </el-dialog>
+    <el-dialog :title="$t('lang.connection.newKey')" :visible.sync="newKeyDialogVisible">
+      <el-form ref="form" :model="newKeyForm" label-width="80px" :rules="rules">
+        <el-input v-show="false" v-model="newKeyForm.connectionKey"></el-input>
+        <el-form-item :label="$t('lang.dialog.keyName')" prop="name">
+          <el-input v-model="newKeyForm.name" :placeholder="$t('lang.dialog.enterKeyName')"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('lang.dialog.keyType')" prop="type">
+          <el-select v-model="newKeyForm.type" :placeholder="$t('lang.dialog.selectKeyType')" style="width: 100%">
+            <el-option label="string" value="string"></el-option>
+            <el-option label="list" value="list"></el-option>
+            <el-option label="set" value="set"></el-option>
+            <el-option label="zset" value="zset"></el-option>
+            <el-option label="hash" value="hash"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-button @click="closeNewKeyDialog">{{ $t('lang.dialog.cancel') }}</el-button>
+        <el-button @click="addNewKey" type="primary">{{
+            $t('lang.dialog.confirm')
+          }}
+        </el-button>
+      </el-form>
+    </el-dialog>
   </el-container>
 </template>
 
@@ -116,8 +138,9 @@
 // @ is an alias to /src
 
 import {
+  addNewKey,
   addressStatus,
-  editConnection,
+  editConnection, exists,
   getInfo,
   getKeys,
   getValueByKey,
@@ -140,7 +163,11 @@ export default {
       form: {
         separator: ':'
       },
+      newKeyForm: {
+        type: 'string'
+      },
       dialogVisible: false,
+      newKeyDialogVisible: false,
       addresses: [],
       activeName: '',
       editableTabs: [],
@@ -365,14 +392,7 @@ export default {
         }
       )
     },
-    handleMenuItemSelected(index) {
-      const indexPath = index.split('-')
-      const addressIndex = parseInt(indexPath[0])
-      const keyIndex = parseInt(indexPath[1])
-      console.log(index, indexPath, addressIndex, keyIndex)
-      const address = this.addresses[addressIndex]
-      const redisKey = address.keys[keyIndex]
-
+    openTabForKey(redisKey, address) {
       const title = redisKey + ' | ' + address.host + '@' + address.port + ' | db' + address.database
       let existsFlag = false
       for (const tab of this.editableTabs) {
@@ -401,12 +421,58 @@ export default {
         })
       }
     },
+    handleMenuItemSelected(index) {
+      const indexPath = index.split('-')
+      const addressIndex = parseInt(indexPath[0])
+      const keyIndex = parseInt(indexPath[1])
+      console.log(index, indexPath, addressIndex, keyIndex)
+      const address = this.addresses[addressIndex]
+      const redisKey = address.keys[keyIndex]
+
+      this.openTabForKey(redisKey, address)
+    },
     getAddressByKey(key) {
       for (const address of this.addresses) {
         if (address.key === key) {
           return address
         }
       }
+    },
+    openNewKeyDialog(key) {
+      this.newKeyDialogVisible = true
+      this.newKeyForm = {type: 'string'}
+      this.$set(this.newKeyForm, 'connectionKey', key)
+    },
+    closeNewKeyDialog() {
+      this.newKeyDialogVisible = false
+      this.$set(this.newKeyForm, 'connectionKey', '')
+    },
+    addNewKey() {
+      this.newKeyDialogVisible = false
+      console.log(this.newKeyForm)
+      const form = this.newKeyForm
+      const connectionKey = form.connectionKey
+      const redisKey = form.name
+      const type = form.type
+      const address = this.getAddressByKey(connectionKey)
+      const database = address.database
+      exists(connectionKey, database, redisKey).then(res => {
+        if (res.data.code === 200) {
+          const existsFlag = res.data.data
+          // 判断key是否已存在，如果已存在，打开tab
+          if (existsFlag) {
+            this.openTabForKey(redisKey, address)
+          } else {
+            // 如果不存在，新建key，将key插到address.keys中，打开tab
+            addNewKey(connectionKey, database, redisKey, type).then(res => {
+              if (res.data.code === 200) {
+                address.keys.push(redisKey)
+                this.openTabForKey(redisKey, address)
+              }
+            })
+          }
+        }
+      })
     },
     refreshRedisValue(info) {
       console.log(`刷新key为${info.key}的数据`)
@@ -470,6 +536,7 @@ export default {
               response => {
                 if (response.data.code === 200) {
                   const data = response.data.data
+                  console.log(data)
                   this.$set(this.addresses[index], 'keys', data.keys.sort())
                   this.$set(this.addresses[index], 'cursor', data.cursor)
                   this.$set(this.addresses[index], 'finished', data.finished)

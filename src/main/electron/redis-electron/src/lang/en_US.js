@@ -41,7 +41,11 @@ export const lang = {
     submit: 'Submit',
     messageTitle: 'Feedback',
     thanksForFeedback: 'Thanks for your feedback!',
-    success: 'Success'
+    success: 'Success',
+    keyName: 'Name',
+    keyType: 'Type',
+    enterKeyName: 'Enter key name',
+    selectKeyType: 'Select key type'
   },
   about: {
     name: 'Gsein Redis Client',

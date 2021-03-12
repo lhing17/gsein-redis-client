@@ -161,3 +161,14 @@ export const deleteZsetValue = (key, database, redisKey, redisValue) => axios({
   method: 'post',
   params: {key, database, redisKey, redisValue}
 })
+
+export const exists = (key, database, redisKey) => axios({
+  url: `${baseUrl}redis/exists?key=${key}&database=${database}&redisKey=${redisKey}`,
+  method: 'get'
+})
+
+export const addNewKey = (key, database, redisKey, type) => axios({
+  url: `${baseUrl}redis/add-new-key`,
+  method: 'post',
+  params: {key, database, redisKey, type}
+})

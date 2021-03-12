@@ -105,6 +105,30 @@ class RedisService {
     }
 
     /**
+     * 判断键是否存在
+     */
+    fun exists(key: String, database: Int, redisKey: String): Boolean {
+        val connection = getConnection(key, database)
+        return connection.sync().exists(redisKey) == 1L
+    }
+
+    /**
+     * 向redis中添加一个新键
+     */
+    fun addNewKey(key: String, database: Int, redisKey: String, type: String): Boolean {
+        val connection = getConnection(key, database)
+        val redisCommands = connection.sync()
+        return when (type) {
+            "string" -> "OK" == redisCommands.set(redisKey, "value")
+            "list" -> redisCommands.lpush(redisKey, "value") > 0
+            "set" -> redisCommands.sadd(redisKey, "value") == 1L
+            "zset" -> redisCommands.zadd(redisKey, ScoredValue.just(1.0, "value")) == 1L
+            "hash" -> redisCommands.hset(redisKey, "field", "value")
+            else -> true
+        }
+    }
+
+    /**
      * 向List中添加一条数据
      */
     fun addListValue(key: String, database: Int, redisKey: String, redisValue: String): Boolean {
@@ -390,7 +414,9 @@ class RedisService {
             return when (val result = connection.execute(command, *args)) {
                 is List<*> -> result.map { String(it as ByteArray) }
                 is Set<*> -> result.map { String(it as ByteArray) }
-                is Map<*, *> -> result.entries.associateBy ({ String(it.key as ByteArray) }, {String(it.value as ByteArray)})
+                is Map<*, *> -> result.entries.associateBy(
+                    { String(it.key as ByteArray) },
+                    { String(it.value as ByteArray) })
                 is ByteArray -> String(result)
                 else -> result
             }
