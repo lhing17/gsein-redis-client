@@ -3,6 +3,7 @@ package cn.gsein.redisclient.service
 import cn.gsein.redisclient.data.ConnectionData
 import io.lettuce.core.*
 import io.lettuce.core.api.StatefulRedisConnection
+import io.lettuce.core.resource.DefaultClientResources
 import org.slf4j.LoggerFactory
 import org.springframework.data.redis.connection.lettuce.LettuceConnection
 import org.springframework.stereotype.Service
@@ -20,6 +21,7 @@ class RedisService {
 
     companion object {
         const val KEY_COUNT = 100L
+        val clientResources: DefaultClientResources = DefaultClientResources.create()
 
         var connectionMap: MutableMap<String, MutableMap<Int, StatefulRedisConnection<String, String>>> =
             ConcurrentHashMap()
@@ -365,7 +367,7 @@ class RedisService {
             build()
         }
 
-        val client = RedisClient.create(uri)
+        val client = RedisClient.create(clientResources, uri)
         val connect = client.connect()
 
         // 使用后自动关闭流
@@ -424,8 +426,7 @@ class RedisService {
             build()
         }
 
-        val client = RedisClient.create(uri)
-        return client
+        return RedisClient.create(clientResources, uri)
     }
 
     private fun nextUuid(): String {
