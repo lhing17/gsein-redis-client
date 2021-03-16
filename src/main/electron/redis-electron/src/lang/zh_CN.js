@@ -89,7 +89,9 @@ export const lang = {
     newKey: '新增key',
     valid: '有效',
     invalid: '无效',
-    invalidConnection: '无效的连接'
+    invalidConnection: '无效的连接',
+    refreshSuccess: '刷新成功',
+    refreshFail: '刷新失败'
   },
   commands: {
     acl_load: '从配置的ACL文件中重新加载ACL',

@@ -89,7 +89,9 @@ export const lang = {
     newKey: 'New key',
     valid: 'Valid',
     invalid: 'Invalid',
-    invalidConnection: 'Invalid connection'
+    invalidConnection: 'Invalid connection',
+    refreshSuccess: 'Refresh successfully',
+    refreshFail: 'Fail to refresh'
   },
   commands: {
     acl_load: 'Reload the ACLs from the configured ACL file',

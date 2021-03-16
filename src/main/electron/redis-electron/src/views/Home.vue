@@ -583,10 +583,25 @@ export default {
         response => {
           if (response.data.code === 200) {
             const data = response.data.data
+            const message = this.$t('lang.connection.refreshSuccess').toString()
             this.$set(this.addresses[index], 'keys', data.keys.sort())
             this.$set(this.addresses[index], 'cursor', data.cursor)
             this.$set(this.addresses[index], 'finished', data.finished)
+            this.$message({
+              showClose: true,
+              message: message,
+              type: 'success'
+            })
           }
+        }
+      ).catch(
+        () => {
+          const message = this.$t('lang.connection.refreshFail').toString()
+          this.$message({
+            showClose: true,
+            message: message,
+            type: 'success'
+          })
         }
       )
     },
