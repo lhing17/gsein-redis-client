@@ -81,7 +81,7 @@ task("runApp") {
         exec {
             workingDir("src/main/electron/redis-electron")
             if (isWindows) {
-                setExecutable(File(workingDir, "node_modules/.bin/vue-cli-service.exe"))
+                setExecutable(File(workingDir, "node_modules/.bin/vue-cli-service.cmd"))
                 args("electron:serve")
             } else {
                 setExecutable(File(workingDir, "node_modules/.bin/vue-cli-service"))
@@ -111,7 +111,7 @@ task("bundleApp") {
             workingDir("src/main/electron/redis-electron")
             when {
                 isWindows -> {
-                    setExecutable(File(workingDir, "node_modules/.bin/vue-cli-service.exe"))
+                    setExecutable(File(workingDir, "node_modules/.bin/vue-cli-service.cmd"))
                     args("electron:build")
                 }
                 isMacOS -> {
