@@ -25,9 +25,11 @@ if (isDevelopment) {
   } else {
     const chmod = require('child_process').spawn('chmod', ['+x', app.getAppPath() + "/bin/redis-client"]);
     chmod.on('close', (code => {
-      serverProcess = require('child_process').spawn(app.getAppPath() + "/bin/redis-client")
+      const chmod2 = require('child_process').spawn('chmod', ['+x', app.getAppPath() + "/runtime/bin/java"]);
+      chmod2.on('close', () => {
+        serverProcess = require('child_process').spawn(app.getAppPath() + "/bin/redis-client")
+      })
     }))
-
   }
 }
 
@@ -118,15 +120,6 @@ const startUp = function () {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-  if (isDevelopment && !process.env.IS_TEST) {
-    // Install Vue Devtools
-    try {
-      await installExtension(VUEJS_DEVTOOLS)
-    } catch (e) {
-      console.error('Vue Devtools failed to install:', e.toString())
-    }
-  }
-
   startUp()
 })
 

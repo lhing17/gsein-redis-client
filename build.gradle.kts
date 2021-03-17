@@ -1,9 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 
-
-
-
 plugins {
     kotlin("jvm") version "1.4.30"
 //    id("org.jetbrains.compose") version "0.3.0"
@@ -24,6 +21,11 @@ tasks {
     build {
         dependsOn("buildApp")
     }
+
+    bootStartScripts {
+        (unixStartScriptGenerator as TemplateBasedScriptGenerator).template = resources.text.fromFile("customUnixStartScript.txt")
+        (windowsStartScriptGenerator as TemplateBasedScriptGenerator).template = resources.text.fromFile("customWindowsStartScript.txt")
+    }
 }
 
 task("setupNode") {
@@ -36,9 +38,20 @@ task("buildApp") {
     dependsOn("installBootDist")
     doLast {
         val targetDir = project.file("src/main/electron/redis-electron/public")
-        if (targetDir.exists()) {
-            targetDir.delete()
+
+
+        val runtimeDir = File(targetDir, "runtime")
+        if (runtimeDir.exists()) {
+            runtimeDir.delete()
         }
+        runtimeDir.mkdir()
+
+
+        copy {
+            from(File(System.getProperty("java.home"), "jre"))
+            into(runtimeDir)
+        }
+
         copy {
             from(project.file("build/install/redis-client-boot"))
             into(targetDir)
@@ -51,6 +64,7 @@ task("buildApp") {
         if (!isWindows) {
             exec {
                 commandLine("chmod", "+x", appFile.absolutePath)
+                commandLine("chmod", "-R", "755", runtimeDir.absolutePath)
             }
         }
     }

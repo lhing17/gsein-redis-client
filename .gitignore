@@ -3,3 +3,7 @@
 build
 *.iml
 hs_err_pid*.log
+
+runtime/
+app.jar
+redis-client*
