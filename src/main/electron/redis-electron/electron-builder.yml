@@ -1,2 +1,9 @@
 appId: "redis-app"
 asar: false
+nsis:
+  oneClick: false
+  perMachine: true
+  allowToChangeInstallationDirectory: true
+  warningsAsErrors: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
