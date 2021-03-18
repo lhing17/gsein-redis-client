@@ -137,23 +137,27 @@ export default {
   },
   computed: {
     tableData() {
+      console.log(this.info)
       // 从info中拿到的各个数据库的key数量、过期数量等信息
       const kvs = this.info.Keyspace
       const arr = []
-      // 将字符串解析转为对象
-      for (const k of Object.keys(kvs)) {
-        const v = kvs[k]
-        const o = {}
-        const dbInfos = v.split(',').map(d => d.split('='))
-        dbInfos.forEach((dbInfo) => {
-          o[dbInfo[0]] = dbInfo[1]
-        })
-        o.db = k
-        arr.push(o);
+      if (kvs) {
+        // 将字符串解析转为对象
+        for (const k of Object.keys(kvs)) {
+          const v = kvs[k]
+          const o = {}
+          const dbInfos = v.split(',').map(d => d.split('='))
+          dbInfos.forEach((dbInfo) => {
+            o[dbInfo[0]] = dbInfo[1]
+          })
+          o.db = k
+          arr.push(o);
+        }
       }
       return arr
     },
     allInfo() {
+      console.log(this.info)
       const arr = []
       Object.keys(this.info).forEach(key => {
         Object.keys(this.info[key]).forEach(k => {
