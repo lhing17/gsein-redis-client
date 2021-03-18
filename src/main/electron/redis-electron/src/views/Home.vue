@@ -37,6 +37,11 @@
                           :key="item.value"
                           :label="item.label"
                           :value="item.value">
+                          <span>{{item.label}} </span>
+                          <el-tag class="align-left" :type="item.hasKeys?'success':'warning'" size="mini"                                 > {{
+                              item.hasKeys ? $t('lang.connection.hasKeys') : $t('lang.connection.noKeys')
+                            }}
+                          </el-tag>
                         </el-option>
                       </el-select>
                     </el-col>
@@ -522,14 +527,23 @@ export default {
               type: 0,
               content: info
             })
-            this.$set(this.addresses[index], 'databaseOptions', [])
+
+            const options = []
+            for (let i = 0; i < 16; i++) {
+              options.push({
+                label: 'db' + i,
+                value: i,
+                hasKeys: false
+              })
+            }
+            this.$set(this.addresses[index], 'databaseOptions', options)
+
             // 获取所有有数据的database
             Object.keys(info.Keyspace).forEach((key) => {
-              this.addresses[index].databaseOptions.push({
-                label: key,
-                value: parseInt(key.substring(2))
-              })
+              const i = parseInt(key.substring(2));
+              this.$set(this.addresses[index].databaseOptions[i], 'hasKeys', true)
             })
+
             this.$set(this.addresses[index], 'database', 0)
             // 获取db0的所有keys
             getKeys(this.addresses[index].key, 0, '0').then(
